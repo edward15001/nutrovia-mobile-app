@@ -35,6 +35,12 @@
       ],
       "expo-secure-store",
       [
+        "expo-camera",
+        {
+          "cameraPermission": "NutroVia usa la cámara para fotografiar tus comidas y analizarlas."
+        }
+      ],
+      [
         "@stripe/stripe-react-native",
         {
           "merchantIdentifier": "",

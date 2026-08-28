@@ -1,10 +1,11 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getPlan, NutritionPlan } from '@/lib/plan';
+import { getPlan, isPro, NutritionPlan } from '@/lib/plan';
 import { Spacing } from '@/constants/theme';
+import { Icon } from '@/components/icon';
 
 const GOLD = '#C9A84C';
 const DARK = '#0D0D0D';
@@ -47,11 +48,17 @@ export default function NutritionScreen() {
   }
 
   const menu = plan?.weekly_menu?.[day];
-
+  const pro = isPro(plan);
+  // En modo free el backend envía solo { _kcal } por día (sin las comidas):
+  // mostramos las kcal y bloqueamos el detalle con un CTA a Pro.
+  const dimmed = menu && typeof (menu as any)._kcal === 'number';
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>🥗 Mi Nutrición</Text>
+        <View style={styles.titleRow}>
+          <Icon name="restaurant" size={20} />
+          <Text style={styles.title}>Mi Nutrición</Text>
+        </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dayTabs}>
           {DAYS.map(d => (
@@ -80,13 +87,27 @@ export default function NutritionScreen() {
           <View style={styles.empty}>
             <Text style={styles.emptyText}>No hay menú disponible para este día.</Text>
           </View>
+        ) : dimmed ? (
+          // Plan FREE ("a oscuras"): solo kcal del día, comidas bloqueadas
+          <View style={styles.lockBox}>
+            <Icon name="lock-closed" size={26} />
+            <Text style={styles.lockTitle}>Nutrición detallada solo en Pro</Text>
+            <Text style={styles.lockText}>
+              El día {day} suma {(menu as any)._kcal} kcal. El detalle de comidas está en el plan Pro.
+            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.lockBtn, pressed && { opacity: 0.85 }]}
+              onPress={() => router.push('/subscription')}>
+              <Text style={styles.lockBtnText}>Subir a Pro →</Text>
+            </Pressable>
+          </View>
         ) : (
           <>
             <Text style={styles.dayTitle}>
               {day} — {plan?.daily_calories} kcal totales
             </Text>
             {MEALS.map(({ key, label }) => {
-              const meal = menu[key];
+              const meal = (menu as any)[key];
               if (!meal) return null;
               return (
                 <View key={key} style={styles.mealCard}>
@@ -113,6 +134,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, backgroundColor: DARK, alignItems: 'center', justifyContent: 'center' },
   scroll: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { color: '#fff', fontSize: 22, fontWeight: '800' },
   dayTabs: { flexGrow: 0 },
   dayTab: {
@@ -151,4 +173,17 @@ const styles = StyleSheet.create({
   mealIngredients: { color: MUTED, fontSize: 12, marginTop: Spacing.one, lineHeight: 18 },
   empty: { padding: Spacing.four, alignItems: 'center' },
   emptyText: { color: MUTED, fontSize: 14 },
+  lockBox: {
+    backgroundColor: 'rgba(201,168,76,0.08)',
+    borderColor: 'rgba(201,168,76,0.35)',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: Spacing.four,
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  lockTitle: { color: '#fff', fontSize: 17, fontWeight: '800', textAlign: 'center' },
+  lockText: { color: MUTED, fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  lockBtn: { backgroundColor: GOLD, borderRadius: 10, paddingHorizontal: Spacing.four, paddingVertical: 12, marginTop: Spacing.two },
+  lockBtnText: { color: DARK, fontSize: 14, fontWeight: '800' },
 });

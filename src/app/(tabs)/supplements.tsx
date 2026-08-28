@@ -1,10 +1,11 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getPlan, NutritionPlan } from '@/lib/plan';
+import { getPlan, isPro, NutritionPlan } from '@/lib/plan';
 import { Spacing } from '@/constants/theme';
+import { Icon } from '@/components/icon';
 
 const GOLD = '#C9A84C';
 const DARK = '#0D0D0D';
@@ -39,11 +40,15 @@ export default function SupplementsScreen() {
   }
 
   const supps = plan?.supplements || [];
+  const pro = isPro(plan);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>💊 Suplementación</Text>
+        <View style={styles.titleRow}>
+          <Icon name="flask" size={20} />
+          <Text style={styles.title}>Suplementación</Text>
+        </View>
 
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>
@@ -51,7 +56,21 @@ export default function SupplementsScreen() {
           </Text>
         </View>
 
-        {supps.length === 0 ? (
+        {!pro ? (
+          // La suplementación es exclusiva de Pro
+          <View style={styles.lockBox}>
+            <Icon name="lock-closed" size={26} />
+            <Text style={styles.lockTitle}>Suplementación solo en Pro</Text>
+            <Text style={styles.lockText}>
+              Descubre qué suplementos encajan con tu plan actualizando a Pro.
+            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.lockBtn, pressed && { opacity: 0.85 }]}
+              onPress={() => router.push('/subscription')}>
+              <Text style={styles.lockBtnText}>Subir a Pro →</Text>
+            </Pressable>
+          </View>
+        ) : supps.length === 0 ? (
           <Text style={styles.emptyText}>No hay suplementos en tu plan.</Text>
         ) : (
           supps.map((s, i) => (
@@ -77,6 +96,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, backgroundColor: DARK, alignItems: 'center', justifyContent: 'center' },
   scroll: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { color: '#fff', fontSize: 22, fontWeight: '800' },
   disclaimer: {
     backgroundColor: 'rgba(201,168,76,0.06)',
@@ -100,4 +120,17 @@ const styles = StyleSheet.create({
   dosis: { color: GOLD, fontSize: 13 },
   motivo: { color: MUTED, fontSize: 13, lineHeight: 19 },
   emptyText: { color: MUTED, fontSize: 14 },
+  lockBox: {
+    backgroundColor: 'rgba(201,168,76,0.08)',
+    borderColor: 'rgba(201,168,76,0.35)',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: Spacing.four,
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  lockTitle: { color: '#fff', fontSize: 17, fontWeight: '800', textAlign: 'center' },
+  lockText: { color: MUTED, fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  lockBtn: { backgroundColor: GOLD, borderRadius: 10, paddingHorizontal: Spacing.four, paddingVertical: 12, marginTop: Spacing.two },
+  lockBtnText: { color: DARK, fontSize: 14, fontWeight: '800' },
 });

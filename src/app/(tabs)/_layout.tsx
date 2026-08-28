@@ -1,11 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text } from 'react-native';
 
 const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
 
-function TabIcon({ icon, color }: { icon: string; color: any }) {
-  return <Text style={[styles.icon, { color }]}>{icon}</Text>;
+function TabIcon({ name, color }: { name: any; color: any }) {
+  return <Ionicons name={name} size={20} color={color} />;
 }
 
 export default function TabsLayout() {
@@ -21,43 +20,44 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Resumen',
-          tabBarIcon: ({ color }) => <TabIcon icon="🏠" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="home" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="camera"
+        options={{
+          title: 'Cámara',
+          tabBarIcon: ({ color }) => <TabIcon name="camera" color={color} />,
         }}
       />
       <Tabs.Screen
         name="nutrition"
         options={{
           title: 'Nutrición',
-          tabBarIcon: ({ color }) => <TabIcon icon="🥗" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="restaurant" color={color} />,
         }}
       />
       <Tabs.Screen
         name="training"
         options={{
           title: 'Entreno',
-          tabBarIcon: ({ color }) => <TabIcon icon="💪" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="barbell" color={color} />,
         }}
       />
       <Tabs.Screen
         name="supplements"
         options={{
           title: 'Suplementos',
-          tabBarIcon: ({ color }) => <TabIcon icon="💊" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="flask" color={color} />,
         }}
       />
       <Tabs.Screen
         name="subscription"
         options={{
           title: 'Suscripción',
-          tabBarIcon: ({ color }) => <TabIcon icon="⭐" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="card" color={color} />,
         }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  icon: {
-    fontSize: 20,
-  },
-});

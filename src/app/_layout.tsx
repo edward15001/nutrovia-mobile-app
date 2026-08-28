@@ -1,4 +1,4 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
@@ -36,6 +36,8 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
+        {/* Splash inicial (siempre visible al arrancar), luego redirige a login o al panel */}
+        <Stack.Screen name="splash" />
         <Stack.Protected guard={loggedIn}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="questionnaire" />

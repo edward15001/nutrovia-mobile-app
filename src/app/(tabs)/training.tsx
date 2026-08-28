@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getPlan, NutritionPlan } from '@/lib/plan';
 import { Spacing } from '@/constants/theme';
+import { Icon } from '@/components/icon';
 
 const GOLD = '#C9A84C';
 const DARK = '#0D0D0D';
@@ -51,7 +52,10 @@ export default function TrainingScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>💪 Mi Entrenamiento</Text>
+        <View style={styles.titleRow}>
+          <Icon name="barbell" size={20} />
+          <Text style={styles.title}>Mi Entrenamiento</Text>
+        </View>
 
         <View style={styles.card}>
           <Text style={styles.cardLabel}>Tu rutina</Text>
@@ -108,6 +112,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, backgroundColor: DARK, alignItems: 'center', justifyContent: 'center', padding: Spacing.four },
   scroll: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   title: { color: '#fff', fontSize: 22, fontWeight: '800' },
   card: {
     backgroundColor: '#1A1A1A',

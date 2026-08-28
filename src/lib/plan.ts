@@ -51,7 +51,15 @@ export interface PlanProfile {
   training_equipment: string;
 }
 
+export interface PlanAccess {
+  tier: 'free' | 'pro';
+  isPro: boolean;
+  canRegenerate: boolean;
+  features?: { ia: boolean; supplements: boolean; checkins: boolean; mealDetail: boolean };
+}
+
 export interface NutritionPlan {
+  access?: PlanAccess;
   daily_calories: number;
   protein_g: number;
   carbs_g: number;
@@ -73,4 +81,17 @@ export async function getPlan(): Promise<NutritionPlan | null> {
     if (err.status === 404) return null;
     throw err;
   }
+}
+
+/**
+ * ¿El usuario tiene acceso Pro? Prioriza el campo access que devuelve /api/plan;
+ * para planes antiguos sin él, deriva del estado de la suscripción que traiga.
+ */
+export function isPro(plan: NutritionPlan | null | undefined): boolean {
+  if (plan?.access?.isPro !== undefined) return plan.access.isPro;
+  const anyPlan = plan as any;
+  if (typeof anyPlan?.sub_status === 'string') {
+    return ['trial', 'active', 'past_due'].includes(anyPlan.sub_status);
+  }
+  return false;
 }
