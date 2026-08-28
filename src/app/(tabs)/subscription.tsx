@@ -130,12 +130,11 @@ export default function SubscriptionScreen() {
           </View>
         </View>
 
-        {(sub?.trial_end || sub?.next_billing_date || sub?.cancelled_at) && (
+        {sub && !['none', 'cancelled', 'expired'].includes(sub.status) && (sub.next_billing_date || sub.cancelled_at) && (
           <View style={styles.detailsCard}>
-            <Text style={styles.cardLabel}>Detalles</Text>
-            {sub?.trial_end && <View style={styles.detailRow}><Text style={styles.meta}>Fin de prueba</Text><Text style={styles.detailValue}>{fmt(sub.trial_end)}</Text></View>}
-            {sub?.next_billing_date && <View style={styles.detailRow}><Text style={styles.meta}>Próximo cobro</Text><Text style={styles.detailValue}>{fmt(sub.next_billing_date)}</Text></View>}
-            {sub?.cancelled_at && <View style={styles.detailRow}><Text style={styles.meta}>Cancelada el</Text><Text style={styles.detailValue}>{fmt(sub.cancelled_at)}</Text></View>}
+            <Text style={styles.cardLabel}>Detalles Pro</Text>
+            {sub.next_billing_date && <View style={styles.detailRow}><Text style={styles.meta}>Próximo cobro</Text><Text style={styles.detailValue}>{fmt(sub.next_billing_date)}</Text></View>}
+            {sub.cancelled_at && <View style={styles.detailRow}><Text style={styles.meta}>Cancelada el</Text><Text style={styles.detailValue}>{fmt(sub.cancelled_at)}</Text></View>}
           </View>
         )}
 

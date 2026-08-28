@@ -83,7 +83,7 @@ export default function TrainingScreen() {
 
         {tp.progresion?.length > 0 && (
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>📈 Progresión</Text>
+            <View style={styles.cardLabelRow}><Icon name="trending-up" size={16} /><Text style={styles.cardLabel}>Progresión</Text></View>
             {tp.progresion.map((p, i) => (
               <Text key={i} style={styles.tip}>
                 {p}
@@ -94,7 +94,7 @@ export default function TrainingScreen() {
 
         {tp.notas?.length > 0 && (
           <View style={styles.card}>
-            <Text style={styles.cardLabel}>📌 Notas</Text>
+            <View style={styles.cardLabelRow}><Icon name="document-text-outline" size={16} /><Text style={styles.cardLabel}>Notas</Text></View>
             {tp.notas.map((n, i) => (
               <Text key={i} style={styles.tip}>
                 {n}
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     borderColor: '#2A2A2A',
   },
   cardLabel: { color: GOLD, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.two },
+  cardLabelRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one, marginBottom: Spacing.two },
   routineTitle: { color: '#fff', fontSize: 16, fontWeight: '700', textTransform: 'capitalize' },
   meta: { color: MUTED, fontSize: 13, marginTop: Spacing.one },
   sessionHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, marginBottom: Spacing.two },

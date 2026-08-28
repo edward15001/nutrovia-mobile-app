@@ -25,52 +25,52 @@ export interface Option {
 // ─── Opciones (mismas que el cuestionario web) ───────────────
 
 export const SEX_OPTIONS: Option[] = [
-  { value: 'hombre', label: '♂️ Hombre' },
-  { value: 'mujer', label: '♀️ Mujer' },
+  { value: 'hombre', label: 'Hombre' },
+  { value: 'mujer', label: 'Mujer' },
 ];
 
 export const GOAL_OPTIONS: Option[] = [
-  { value: 'perder_peso', label: '🔥 Perder peso' },
-  { value: 'ganar_masa', label: '💪 Ganar masa' },
-  { value: 'mantener', label: '⚖️ Mantener' },
-  { value: 'mejorar_salud', label: '❤️ Mejorar salud' },
+  { value: 'perder_peso', label: 'Perder peso' },
+  { value: 'ganar_masa', label: 'Ganar masa' },
+  { value: 'mantener', label: 'Mantener' },
+  { value: 'mejorar_salud', label: 'Mejorar salud' },
 ];
 
 export const ACTIVITY_OPTIONS: Option[] = [
-  { value: 'sedentario', label: '🪑 Sedentario' },
-  { value: 'ligero', label: '🚶 Ligero' },
-  { value: 'moderado', label: '🏃 Moderado' },
-  { value: 'activo', label: '⚡ Activo' },
-  { value: 'muy_activo', label: '🔥 Muy activo' },
+  { value: 'sedentario', label: 'Sedentario' },
+  { value: 'ligero', label: 'Ligero' },
+  { value: 'moderado', label: 'Moderado' },
+  { value: 'activo', label: 'Activo' },
+  { value: 'muy_activo', label: 'Muy activo' },
 ];
 
 export const DIET_OPTIONS: Option[] = [
-  { value: 'omnivoro', label: '🍖 Omnívoro' },
-  { value: 'vegetariano', label: '🥦 Vegetariano' },
-  { value: 'vegano', label: '🌱 Vegano' },
-  { value: 'sin_gluten', label: '🌾 Sin gluten' },
-  { value: 'sin_lactosa', label: '🥛 Sin lactosa' },
+  { value: 'omnivoro', label: 'Omnívoro' },
+  { value: 'vegetariano', label: 'Vegetariano' },
+  { value: 'vegano', label: 'Vegano' },
+  { value: 'sin_gluten', label: 'Sin gluten' },
+  { value: 'sin_lactosa', label: 'Sin lactosa' },
 ];
 
 export const EXPERIENCE_OPTIONS: Option[] = [
-  { value: 'principiante', label: '🌱 Principiante' },
-  { value: 'intermedio', label: '💪 Intermedio' },
-  { value: 'avanzado', label: '🏆 Avanzado' },
+  { value: 'principiante', label: 'Principiante' },
+  { value: 'intermedio', label: 'Intermedio' },
+  { value: 'avanzado', label: 'Avanzado' },
 ];
 
 export const EQUIPMENT_OPTIONS: Option[] = [
-  { value: 'casa', label: '🏠 En casa' },
-  { value: 'gimnasio', label: '🏋️ Gimnasio' },
-  { value: 'mixto', label: '⚡ Mixto' },
+  { value: 'casa', label: 'En casa' },
+  { value: 'gimnasio', label: 'Gimnasio' },
+  { value: 'mixto', label: 'Mixto' },
 ];
 
 export const HEALTH_OPTIONS: Option[] = [
-  { value: 'ninguna', label: '✅ Ninguna' },
-  { value: 'diabetes', label: '🩸 Diabetes' },
-  { value: 'hipertension', label: '💉 Hipertensión' },
-  { value: 'celiaquia', label: '🌾 Celiaquía' },
-  { value: 'colesterol', label: '🫀 Colesterol alto' },
-  { value: 'hipotiroidismo', label: '🦋 Hipotiroidismo' },
+  { value: 'ninguna', label: 'Ninguna' },
+  { value: 'diabetes', label: 'Diabetes' },
+  { value: 'hipertension', label: 'Hipertensión' },
+  { value: 'celiaquia', label: 'Celiaquía' },
+  { value: 'colesterol', label: 'Colesterol alto' },
+  { value: 'hipotiroidismo', label: 'Hipotiroidismo' },
 ];
 
 // ─── Envío al backend ────────────────────────────────────────
