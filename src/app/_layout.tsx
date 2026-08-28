@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { isLoggedIn, onAuthChange } from '@/lib/auth';
+import SplashScreenView from '@/app/splash';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,13 +32,11 @@ export default function RootLayout() {
     };
   }, []);
 
-  if (loggedIn === null) return null;
+  if (loggedIn === null) return <SplashScreenView />;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
-        {/* Splash inicial (siempre visible al arrancar), luego redirige a login o al panel */}
-        <Stack.Screen name="splash" />
         <Stack.Protected guard={loggedIn}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="questionnaire" />

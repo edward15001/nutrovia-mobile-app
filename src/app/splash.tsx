@@ -1,26 +1,17 @@
-import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { isLoggedIn } from '@/lib/auth';
 import { Icon } from '@/components/icon';
 
 const GOLD = '#C9A84C';
 const DARK = '#0D0D0D';
 const MUTED = '#888880';
 
-/** Splash de bienvenida con animación del logo. Tras unos instantes lleva a
- *  login (sin sesión) o al panel (con sesión). */
+/** Splash de bienvenida con animación del logo mientras se comprueba la sesión. */
 export default function SplashScreen() {
-  useEffect(() => {
-    const t = setTimeout(async () => {
-      const ok = await isLoggedIn();
-      router.replace(ok ? '/(tabs)' : '/login');
-    }, 1900);
-    return () => clearTimeout(t);
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
