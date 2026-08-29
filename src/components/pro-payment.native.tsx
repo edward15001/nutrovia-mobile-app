@@ -15,34 +15,52 @@ interface Props {
 
 /**
  * Flujo de activación de Pro con Stripe PaymentSheet (cobro inmediato, sin trial).
- * 1. POST /api/subscription/setup-intent → client_secret + publishable_key
- * 2. PaymentSheet guarda la tarjeta (SetupIntent)
- * 3. POST /api/subscription/start con setup_intent_id → Pro activo (cobro inmediato)
+ * 1. POST /api/subscription/intent → crea la suscripción y devuelve el
+ *    client_secret del PaymentIntent de la primera factura (14 €) + subscription_id.
+ * 2. PaymentSheet confirma ese PaymentIntent (cobra la tarjeta, con su 3DS).
+ * 3. POST /api/subscription/start con subscription_id → Pro queda activo.
  */
 export default function ProPayment({ onActivated, onError, onClose }: Props) {
   const [clientSecret, setClientSecret] = useState('');
+  const [subscriptionId, setSubscriptionId] = useState('');
   const [publishableKey, setPublishableKey] = useState('');
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
-        const data = await api<{ client_secret: string; publishable_key: string }>(
-          '/api/subscription/setup-intent',
-          { method: 'POST' }
-        );
-        if (!data.client_secret || !data.publishable_key) {
+        const data = await api<{
+          client_secret: string | null;
+          publishable_key: string;
+          subscription_id: string;
+          already_active?: boolean;
+        }>('/api/subscription/intent', { method: 'POST' });
+        if (!data.publishable_key || !data.subscription_id) {
+          throw new Error('Respuesta de pago inválida');
+        }
+        setSubscriptionId(data.subscription_id);
+        setPublishableKey(data.publishable_key);
+
+        // Reintento tras un pago ya cobrado: activar directamente.
+        if (data.already_active && !data.client_secret) {
+          await api('/api/subscription/start', {
+            method: 'POST',
+            body: { subscription_id: data.subscription_id },
+          });
+          onActivated();
+          return;
+        }
+        if (!data.client_secret) {
           throw new Error('Respuesta de pago inválida');
         }
         setClientSecret(data.client_secret);
-        setPublishableKey(data.publishable_key);
         setReady(true);
       } catch (err: any) {
         onError(err.message || 'No se pudo preparar el pago');
         onClose();
       }
     })();
-  }, [onClose, onError]);
+  }, [onClose, onError, onActivated]);
 
   if (!ready) {
     return (
@@ -57,6 +75,7 @@ export default function ProPayment({ onActivated, onError, onClose }: Props) {
     <StripeProvider publishableKey={publishableKey}>
       <PaymentSheetLauncher
         clientSecret={clientSecret}
+        subscriptionId={subscriptionId}
         onActivated={onActivated}
         onError={onError}
         onClose={onClose}
@@ -67,10 +86,11 @@ export default function ProPayment({ onActivated, onError, onClose }: Props) {
 
 function PaymentSheetLauncher({
   clientSecret,
+  subscriptionId,
   onActivated,
   onError,
   onClose,
-}: Props & { clientSecret: string }) {
+}: Props & { clientSecret: string; subscriptionId: string }) {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const launched = useRef(false);
 
@@ -81,7 +101,7 @@ function PaymentSheetLauncher({
     (async () => {
       try {
         const { error: initError } = await initPaymentSheet({
-          setupIntentClientSecret: clientSecret,
+          paymentIntentClientSecret: clientSecret,
           merchantDisplayName: 'NutroVia',
           style: 'alwaysDark',
         });
@@ -106,12 +126,10 @@ function PaymentSheetLauncher({
           return;
         }
 
-        // Éxito: el SetupIntent ya está confirmado. El ID va codificado en
-        // el client_secret (seti_xxx_secret_yyy → seti_xxx).
-        const setupIntentId = clientSecret.split('_secret_')[0];
+        // Éxito: el PaymentIntent de la primera factura ya se cobró. Finaliza.
         await api('/api/subscription/start', {
           method: 'POST',
-          body: { setup_intent_id: setupIntentId },
+          body: { subscription_id: subscriptionId },
         });
         onActivated();
       } catch (err: any) {
@@ -119,7 +137,7 @@ function PaymentSheetLauncher({
         onClose();
       }
     })();
-  }, [clientSecret, onActivated, onClose, onError]);
+  }, [clientSecret, subscriptionId, onActivated, onClose, onError]);
 
   return (
     <View style={styles.loadingRow}>
