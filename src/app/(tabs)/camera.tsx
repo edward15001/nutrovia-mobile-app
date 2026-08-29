@@ -122,7 +122,6 @@ export default function CameraScreen() {
   if (saved) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text style={styles.savedEmoji}>✅</Text>
         <Text style={styles.savedTitle}>Comida registrada</Text>
         <Text style={styles.savedText}>Ya aparece en tu diario del día y se descontó de tus kcal.</Text>
         <Pressable style={({ pressed }) => [styles.permissionBtn, pressed && styles.pressed]} onPress={() => { setResult(null); setSaved(false); }}>
@@ -141,12 +140,12 @@ export default function CameraScreen() {
 
           {result.safety_warning ? (
             <View style={styles.safetyBox}>
-              <Text style={styles.safetyText}>⚠️ {result.safety_warning}</Text>
+              <Text style={styles.safetyText}>{result.safety_warning}</Text>
             </View>
           ) : null}
 
           <View style={[styles.fitBox, fits ? styles.fitGood : styles.fitBad]}>
-            <Text style={styles.fitBadge}>{fits ? '✅ Encaja con tu plan' : '⚖️ Cuidado'}</Text>
+            <Text style={styles.fitBadge}>{fits ? 'Encaja con tu plan' : 'Cuidado'}</Text>
             <Text style={[styles.fitText, !fits && styles.fitTextBad]}>{result.feedback}</Text>
           </View>
 
@@ -298,7 +297,6 @@ const styles = StyleSheet.create({
   retakeBtn: { borderRadius: 12, paddingVertical: 13, alignItems: 'center', borderWidth: 1, borderColor: '#333' },
   retakeBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 
-  savedEmoji: { fontSize: 52, marginBottom: Spacing.three },
   savedTitle: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center' },
   savedText: { color: MUTED, fontSize: 14, textAlign: 'center', marginTop: Spacing.two, lineHeight: 20 },
 });

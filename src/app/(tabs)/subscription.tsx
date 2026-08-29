@@ -37,10 +37,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const PAYMENT_LABELS: Record<string, string> = {
-  paid: '✅ Pagado',
-  failed: '❌ Fallido',
-  pending: '⏳ Pendiente',
-  refunded: '↩️ Reembolsado',
+  paid: 'Pagado',
+  failed: 'Fallido',
+  pending: 'Pendiente',
+  refunded: 'Reembolsado',
 };
 
 function fmt(dateStr?: string) {

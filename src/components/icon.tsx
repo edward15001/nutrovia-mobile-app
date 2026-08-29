@@ -26,7 +26,11 @@ export type IconName =
   | 'trending-up'
   | 'document-text-outline'
   | 'refresh'
-  | 'rotate-left';
+  | 'rotate-left'
+  | 'medkit'
+  | 'leaf'
+  | 'flash'
+  | 'warning';
 
 const MAP: Record<IconName, Name> = {
   home: 'home-outline',
@@ -49,6 +53,10 @@ const MAP: Record<IconName, Name> = {
   'document-text-outline': 'document-text-outline',
   refresh: 'refresh-outline',
   'rotate-left': 'arrow-undo-outline',
+  medkit: 'medkit-outline',
+  leaf: 'leaf-outline',
+  flash: 'flash-outline',
+  warning: 'warning-outline',
 };
 
 /** Ícono minimalista del set de NutroVia. Usa Ionicons (multiplataforma). */
