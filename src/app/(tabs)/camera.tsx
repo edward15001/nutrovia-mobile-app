@@ -106,7 +106,6 @@ export default function CameraScreen() {
   if (!permission.granted) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text style={styles.permissionEmoji}>📷</Text>
         <Text style={styles.permissionTitle}>Necesitamos tu cámara</Text>
         <Text style={styles.permissionText}>
           Fotografía tu plato para que la IA lo analice y te diga si cuadra con tu plan.
@@ -136,7 +135,7 @@ export default function CameraScreen() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-          <Text style={styles.title}>🍽️ Tu plato</Text>
+          <Text style={styles.title}>Tu plato</Text>
 
           {result.safety_warning ? (
             <View style={styles.safetyBox}>
@@ -185,7 +184,7 @@ export default function CameraScreen() {
   // ── Vista principal: cámara ──
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Text style={styles.title}>📷 Foto de tu comida</Text>
+      <Text style={styles.title}>Foto de tu comida</Text>
       <Text style={styles.subtitle}>
         Enfoca tu plato y dispara. La IA lo reconoce y te dice los valores.
       </Text>
@@ -249,7 +248,6 @@ const styles = StyleSheet.create({
   shutterPressed: { opacity: 0.7 },
   shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: GOLD },
 
-  permissionEmoji: { fontSize: 48, marginBottom: Spacing.three },
   permissionTitle: { color: '#fff', fontSize: 20, fontWeight: '800', textAlign: 'center' },
   permissionText: { color: MUTED, fontSize: 14, textAlign: 'center', marginTop: Spacing.two, lineHeight: 20 },
   permissionBtn: {

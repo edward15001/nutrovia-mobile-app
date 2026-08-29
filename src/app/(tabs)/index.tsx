@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Circle } from 'react-native-svg';
 
 import { getPlan, isPro, NutritionPlan } from '@/lib/plan';
 import { getUser } from '@/lib/auth';
@@ -60,6 +61,51 @@ function BentoCard({
         <Text style={styles.bentoLabel}>{label}</Text>
       </View>
       {children}
+    </View>
+  );
+}
+
+// Anillo de macros concéntricos (P/C/G) con las kcal en el centro.
+// Mismo espíritu que el anillo de objetivo de la web, en versión móvil.
+function GoalRing({ kcal, proteinG, carbsG, fatG }: { kcal: number; proteinG: number; carbsG: number; fatG: number }) {
+  const base = kcal || 1;
+  const pFrac = Math.min(1, (proteinG * 4) / base);
+  const cFrac = Math.min(1, (carbsG * 4) / base);
+  const gFrac = Math.min(1, (fatG * 9) / base);
+  const circ = (r: number) => 2 * Math.PI * r;
+  const size = 130;
+  const cx = size / 2;
+
+  return (
+    <View style={styles.ringBox}>
+      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        {/* fondo del anillo */}
+        <Circle cx={cx} cy={cx} r={50} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={7} />
+        {/* Proteína (exterior) */}
+        <Circle
+          cx={cx} cy={cx} r={50} fill="none" stroke="#f0d58c" strokeWidth={7} strokeLinecap="round"
+          strokeDasharray={`${pFrac * circ(50)} ${circ(50)}`}
+          transform={`rotate(-90 ${cx} ${cx})`}
+        />
+        {/* Carbos (medio) */}
+        <Circle
+          cx={cx} cy={cx} r={40} fill="none" stroke="#c9a84c" strokeWidth={7} strokeLinecap="round"
+          strokeDasharray={`${cFrac * circ(40)} ${circ(40)}`}
+          strokeDashoffset={-circ(40) * pFrac}
+          transform={`rotate(-90 ${cx} ${cx})`}
+        />
+        {/* Grasas (interior) */}
+        <Circle
+          cx={cx} cy={cx} r={30} fill="none" stroke="#9e7f2e" strokeWidth={7} strokeLinecap="round"
+          strokeDasharray={`${gFrac * circ(30)} ${circ(30)}`}
+          strokeDashoffset={-circ(30) * (pFrac + cFrac)}
+          transform={`rotate(-90 ${cx} ${cx})`}
+        />
+      </Svg>
+      <View style={styles.ringCenter}>
+        <Text style={styles.ringNum}>{kcal}</Text>
+        <Text style={styles.ringUnit}>KCAL / DÍA</Text>
+      </View>
     </View>
   );
 }
@@ -202,7 +248,6 @@ export default function OverviewScreen() {
   if (!plan) {
     return (
       <SafeAreaView style={styles.center}>
-        <Text style={styles.emptyEmoji}>📋</Text>
         <Text style={styles.emptyTitle}>Aún no tienes un plan</Text>
         <Text style={styles.emptyText}>Completa el cuestionario para recibir tu plan personalizado</Text>
         <Pressable
@@ -227,7 +272,7 @@ export default function OverviewScreen() {
         {/* Saludo + editar plan */}
         <View style={styles.greetingRow}>
           <Text style={styles.greeting}>
-            {userName ? `Hola, ${userName}` : 'Tu resumen'} 👋
+            {userName ? `Hola, ${userName}` : 'Tu resumen'}
           </Text>
           <Pressable
             style={({ pressed }) => [styles.editBtn, pressed && styles.pressed]}
@@ -285,13 +330,30 @@ export default function OverviewScreen() {
           </View>
         )}
 
+        {/* Tu objetivo: tarjeta destacada con anillo de macros */}
+        <View style={styles.goalCard}>
+          <View style={styles.goalInfo}>
+            <View style={styles.bentoHeader}>
+              <Icon name="body" size={16} />
+              <Text style={styles.bentoLabel}>Tu objetivo</Text>
+            </View>
+            <Text style={styles.goalTitle}>{goal}</Text>
+            <Text style={styles.goalSub}>
+              {plan.profile?.weight_kg
+                ? `${plan.profile.weight_kg} kg${plan.profile.target_weight_kg ? ` → ${plan.profile.target_weight_kg} kg` : ''}`
+                : 'Meta principal'}
+            </Text>
+            <View style={styles.goalChips}>
+              <Text style={styles.goalChip}>P {plan.protein_g}g</Text>
+              <Text style={styles.goalChip}>C {plan.carbs_g}g</Text>
+              <Text style={styles.goalChip}>G {plan.fat_g}g</Text>
+            </View>
+          </View>
+          <GoalRing kcal={plan.daily_calories} proteinG={plan.protein_g} carbsG={plan.carbs_g} fatG={plan.fat_g} />
+        </View>
+
         {/* Bento grid principal */}
         <View style={styles.bentoGrid}>
-          <BentoCard icon="body" label="Objetivo" accent>
-            <Text style={styles.bentoEmphasis}>{goal}</Text>
-            <Text style={styles.bentoSub}>Meta principal</Text>
-          </BentoCard>
-
           <BentoCard icon="flame" label="Calorías">
             <Text style={styles.bentoEmphasis}>{plan.daily_calories}</Text>
             <Text style={styles.bentoSub}>kcal/día</Text>
@@ -431,6 +493,34 @@ const styles = StyleSheet.create({
   todayRemain: { color: GOLD, fontSize: 13, fontWeight: '700' },
   todayEmpty: { color: MUTED, fontSize: 12, lineHeight: 18 },
 
+  goalCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    backgroundColor: 'rgba(201,168,76,0.08)',
+    borderColor: 'rgba(201,168,76,0.35)',
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: Spacing.three,
+  },
+  goalInfo: { flex: 1, gap: 6 },
+  goalTitle: { color: '#fff', fontSize: 20, fontWeight: '900' },
+  goalSub: { color: MUTED, fontSize: 12 },
+  goalChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 },
+  goalChip: {
+    color: GOLD,
+    fontSize: 11,
+    fontWeight: '700',
+    backgroundColor: 'rgba(201,168,76,0.12)',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  ringBox: { width: 130, height: 130, alignItems: 'center', justifyContent: 'center' },
+  ringCenter: { position: 'absolute', alignItems: 'center' },
+  ringNum: { color: '#fff', fontSize: 22, fontWeight: '900' },
+  ringUnit: { color: MUTED, fontSize: 9, letterSpacing: 0.5, marginTop: 1 },
+
   bentoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   bento: {
     flexBasis: '47%',
@@ -499,7 +589,6 @@ const styles = StyleSheet.create({
     borderColor: '#333',
   },
   checkinChangeText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  emptyEmoji: { fontSize: 48, marginBottom: Spacing.three },
   emptyTitle: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center' },
   emptyText: { color: MUTED, fontSize: 14, textAlign: 'center', marginTop: Spacing.two },
   ctaBtn: { backgroundColor: GOLD, borderRadius: 12, paddingVertical: 14, paddingHorizontal: Spacing.four, marginTop: Spacing.four },
