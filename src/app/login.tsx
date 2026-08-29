@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -44,7 +43,8 @@ export default function LoginScreen() {
       } else {
         await login(email.trim(), password);
       }
-      router.replace('/(tabs)');
+      // No navegar manualmente: el Stack.Protected de _layout.tsx cambia
+      // a la pantalla (tabs) automáticamente cuando loggedIn pasa a true.
     } catch (err: any) {
       setError(err.message || 'Error de conexión');
     } finally {

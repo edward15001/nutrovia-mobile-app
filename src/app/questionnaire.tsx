@@ -148,7 +148,7 @@ export default function QuestionnaireScreen() {
       if (router.canGoBack()) {
         router.back();
       } else {
-        router.replace('/(tabs)');
+        router.replace('/');
       }
     } catch (err: any) {
       setError(err.message || 'Error generando el plan. Inténtalo de nuevo.');
@@ -192,7 +192,7 @@ export default function QuestionnaireScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled">
           {/* ─── Datos físicos ─── */}
-          <Section title="📏 Datos físicos">
+          <Section title="Datos físicos">
             <Text style={styles.label}>Sexo biológico</Text>
             <View style={styles.chipRow}>
               {SEX_OPTIONS.map(opt => (
@@ -238,7 +238,7 @@ export default function QuestionnaireScreen() {
           </Section>
 
           {/* ─── Objetivo ─── */}
-          <Section title="🎯 Objetivo">
+          <Section title="Objetivo">
             <Text style={styles.label}>¿Qué quieres conseguir?</Text>
             <View style={styles.chipRow}>
               {GOAL_OPTIONS.map(opt => (
@@ -253,7 +253,7 @@ export default function QuestionnaireScreen() {
           </Section>
 
           {/* ─── Actividad ─── */}
-          <Section title="🏃 Nivel de actividad">
+          <Section title="Nivel de actividad">
             <Text style={styles.label}>¿Cómo es tu día a día?</Text>
             <View style={styles.chipRow}>
               {ACTIVITY_OPTIONS.map(opt => (
@@ -268,7 +268,7 @@ export default function QuestionnaireScreen() {
           </Section>
 
           {/* ─── Dieta ─── */}
-          <Section title="🥗 Preferencia dietética">
+          <Section title="Preferencia dietética">
             <Text style={styles.label}>¿Qué tipo de alimentación sigues?</Text>
             <View style={styles.chipRow}>
               {DIET_OPTIONS.map(opt => (
@@ -283,7 +283,7 @@ export default function QuestionnaireScreen() {
           </Section>
 
           {/* ─── Entrenamiento ─── */}
-          <Section title="💪 Entrenamiento">
+          <Section title="Entrenamiento">
             <Text style={styles.label}>Experiencia en el gimnasio</Text>
             <View style={styles.chipRow}>
               {EXPERIENCE_OPTIONS.map(opt => (
@@ -328,7 +328,7 @@ export default function QuestionnaireScreen() {
           </Section>
 
           {/* ─── Salud ─── */}
-          <Section title="🩺 Condiciones de salud">
+          <Section title="Condiciones de salud">
             <Text style={styles.label}>
               Tu plan excluirá alimentos contraindicados. Selecciona todo lo que
               aplique.

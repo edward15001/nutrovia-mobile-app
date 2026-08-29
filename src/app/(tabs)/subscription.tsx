@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,11 +29,11 @@ interface Payment {
 // siempre) o decide pagar (Pro). Los estados 'cancelled'/'expired' del backend
 // se muestran como el plan gratuito.
 const STATUS_LABELS: Record<string, string> = {
-  active: '🟢 Pro activa',
-  cancelled: '🟢 Plan gratuito',
-  expired: '🟢 Plan gratuito',
-  past_due: '🟠 Pago pendiente',
-  none: '🟢 Plan gratuito',
+  active: 'Pro activa',
+  cancelled: 'Plan gratuito',
+  expired: 'Plan gratuito',
+  past_due: 'Pago pendiente',
+  none: 'Plan gratuito',
 };
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -74,7 +74,8 @@ export default function SubscriptionScreen() {
 
   async function handleLogout() {
     await logout();
-    router.replace('/login');
+    // No navegar manualmente: el Stack.Protected de _layout.tsx muestra la
+    // pantalla login automáticamente cuando loggedIn pasa a false.
   }
 
   if (loading) {
