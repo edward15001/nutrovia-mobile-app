@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '@/lib/api';
 import { logout } from '@/lib/auth';
 import { Spacing } from '@/constants/theme';
-import TrialPayment from '@/components/trial-payment';
+import ProPayment from '@/components/pro-payment';
 import { Icon } from '@/components/icon';
 
 const GOLD = '#C9A84C';
@@ -15,13 +15,7 @@ const MUTED = '#888880';
 
 interface SubscriptionStatus {
   status: string;
-  trial_start?: string;
-  trial_end?: string;
   next_billing_date?: string;
-  cancelled_at?: string;
-  phase?: string;
-  days_remaining_trial?: number;
-  days_to_charge?: number;
 }
 
 interface Payment {
@@ -31,11 +25,13 @@ interface Payment {
   stripe_invoice_id?: string;
 }
 
+// El usuario no cancela nada: o decide no pagar (plan gratuito, gratis para
+// siempre) o decide pagar (Pro). Los estados 'cancelled'/'expired' del backend
+// se muestran como el plan gratuito.
 const STATUS_LABELS: Record<string, string> = {
-  trial: '🟡 Período de prueba Pro',
   active: '🟢 Pro activa',
-  cancelled: '🔴 Cancelada',
-  expired: '⚫ Expirada',
+  cancelled: '🟢 Plan gratuito',
+  expired: '🟢 Plan gratuito',
   past_due: '🟠 Pago pendiente',
   none: '🟢 Plan gratuito',
 };
@@ -100,7 +96,12 @@ export default function SubscriptionScreen() {
         <View style={styles.statusCard}>
           <Text style={styles.cardLabel}>Estado actual</Text>
           <Text style={styles.statusText}>{STATUS_LABELS[sub?.status || 'none'] || sub?.status}</Text>
-          {sub?.status === 'trial' && sub.phase === 'prueba_gratuita' && <Text style={styles.meta}>Quedan {sub.days_remaining_trial} días de prueba gratis</Text>}
+          {(!sub || ['none', 'cancelled', 'expired'].includes(sub.status)) && (
+            <Text style={styles.meta}>Gratis para siempre. Actualiza a Pro cuando quieras.</Text>
+          )}
+          {sub?.status === 'active' && sub.next_billing_date && (
+            <Text style={styles.meta}>Próximo cobro: {fmt(sub.next_billing_date)}</Text>
+          )}
         </View>
 
         <View style={styles.planGrid}>
@@ -126,20 +127,19 @@ export default function SubscriptionScreen() {
             <Text style={styles.planFeature}>✓ IA y suplementación</Text>
             <Text style={styles.planFeature}>✓ Check-ins de progreso</Text>
             <Text style={styles.planFeature}>✓ Regeneraciones ilimitadas</Text>
-            {(!sub || ['none', 'cancelled', 'expired'].includes(sub.status)) && <Pressable style={({ pressed }) => [styles.ctaBtn, pressed && styles.ctaBtnPressed]} onPress={() => { setPayError(''); setShowPayment(true); }}><Text style={styles.ctaText}>Actualizar a Pro →</Text></Pressable>}
+            {(!sub || ['none', 'cancelled', 'expired'].includes(sub.status)) && <Pressable style={({ pressed }) => [styles.ctaBtn, pressed && styles.ctaBtnPressed]} onPress={() => { setPayError(''); setShowPayment(true); }}><Text style={styles.ctaText}>Actualizar a Pro · 14 €/mes</Text></Pressable>}
           </View>
         </View>
 
-        {sub && !['none', 'cancelled', 'expired'].includes(sub.status) && (sub.next_billing_date || sub.cancelled_at) && (
+        {sub?.status === 'active' && sub.next_billing_date && (
           <View style={styles.detailsCard}>
             <Text style={styles.cardLabel}>Detalles Pro</Text>
-            {sub.next_billing_date && <View style={styles.detailRow}><Text style={styles.meta}>Próximo cobro</Text><Text style={styles.detailValue}>{fmt(sub.next_billing_date)}</Text></View>}
-            {sub.cancelled_at && <View style={styles.detailRow}><Text style={styles.meta}>Cancelada el</Text><Text style={styles.detailValue}>{fmt(sub.cancelled_at)}</Text></View>}
+            <View style={styles.detailRow}><Text style={styles.meta}>Próximo cobro</Text><Text style={styles.detailValue}>{fmt(sub.next_billing_date)}</Text></View>
           </View>
         )}
 
         {showPayment && (
-          <TrialPayment
+          <ProPayment
             onActivated={() => { setShowPayment(false); setPayError(''); load(); }}
             onError={setPayError}
             onClose={() => setShowPayment(false)}
@@ -231,7 +231,6 @@ const styles = StyleSheet.create({
   paymentAmount: { color: '#fff', fontSize: 14, fontWeight: '700', flex: 1 },
   paymentDate: { color: MUTED, fontSize: 12 },
   paymentStatus: { color: '#fff', fontSize: 12, fontWeight: '600' },
-  trialTitle: { color: GOLD, fontSize: 24, fontWeight: '800', marginTop: Spacing.one },
   ctaBtn: {
     backgroundColor: GOLD,
     borderRadius: 12,

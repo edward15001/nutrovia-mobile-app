@@ -14,12 +14,12 @@ interface Props {
 }
 
 /**
- * Flujo de activación de la prueba gratuita con Stripe PaymentSheet.
+ * Flujo de activación de Pro con Stripe PaymentSheet (cobro inmediato, sin trial).
  * 1. POST /api/subscription/setup-intent → client_secret + publishable_key
- * 2. PaymentSheet guarda la tarjeta (SetupIntent) sin cobrar
- * 3. POST /api/subscription/start con setup_intent_id → prueba 7 días
+ * 2. PaymentSheet guarda la tarjeta (SetupIntent)
+ * 3. POST /api/subscription/start con setup_intent_id → Pro activo (cobro inmediato)
  */
-export default function TrialPayment({ onActivated, onError, onClose }: Props) {
+export default function ProPayment({ onActivated, onError, onClose }: Props) {
   const [clientSecret, setClientSecret] = useState('');
   const [publishableKey, setPublishableKey] = useState('');
   const [ready, setReady] = useState(false);
@@ -115,7 +115,7 @@ function PaymentSheetLauncher({
         });
         onActivated();
       } catch (err: any) {
-        onError(err.message || 'Error al activar la prueba gratuita');
+        onError(err.message || 'Error al activar Pro');
         onClose();
       }
     })();
@@ -124,7 +124,7 @@ function PaymentSheetLauncher({
   return (
     <View style={styles.loadingRow}>
       <ActivityIndicator color={GOLD} />
-      <Text style={styles.loadingText}>Activando tu prueba gratuita…</Text>
+      <Text style={styles.loadingText}>Activando Pro…</Text>
     </View>
   );
 }

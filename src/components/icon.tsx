@@ -24,7 +24,9 @@ export type IconName =
   | 'calendar'
   | 'trophy'
   | 'trending-up'
-  | 'document-text-outline';
+  | 'document-text-outline'
+  | 'refresh'
+  | 'rotate-left';
 
 const MAP: Record<IconName, Name> = {
   home: 'home-outline',
@@ -45,6 +47,8 @@ const MAP: Record<IconName, Name> = {
   trophy: 'trophy-outline',
   'trending-up': 'trending-up-outline',
   'document-text-outline': 'document-text-outline',
+  refresh: 'refresh-outline',
+  'rotate-left': 'arrow-undo-outline',
 };
 
 /** Ícono minimalista del set de NutroVia. Usa Ionicons (multiplataforma). */

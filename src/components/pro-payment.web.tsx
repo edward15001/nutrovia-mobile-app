@@ -17,7 +17,7 @@ interface Props {
  * Fallback web: Stripe PaymentSheet es un módulo nativo, no está disponible
  * en el navegador. Aquí redirigimos al flujo web de NutroVia.
  */
-export default function TrialPaymentWeb({ onClose }: Props) {
+export default function ProPaymentWeb({ onClose }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>

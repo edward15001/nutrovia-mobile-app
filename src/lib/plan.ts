@@ -84,6 +84,23 @@ export async function getPlan(): Promise<NutritionPlan | null> {
 }
 
 /**
+ * Intercambia una comida de un día por otra del mismo tipo de otro día.
+ * Endpoint: POST /api/plan/swap (exclusivo de Pro). Devuelve el menú completo
+ * ya persistido por el backend.
+ */
+export async function swapMeal(
+  day: string,
+  mealKey: keyof DayMenu,
+  replacement: Meal
+): Promise<Record<string, DayMenu>> {
+  const data = await api<{ menu: Record<string, DayMenu> }>('/api/plan/swap', {
+    method: 'POST',
+    body: { day, meal_key: mealKey, replacement },
+  });
+  return data.menu;
+}
+
+/**
  * ¿El usuario tiene acceso Pro? Prioriza el campo access que devuelve /api/plan;
  * para planes antiguos sin él, deriva del estado de la suscripción que traiga.
  */
