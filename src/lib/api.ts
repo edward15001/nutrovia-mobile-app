@@ -13,6 +13,7 @@ export async function api<T = any>(
 ): Promise<T> {
   const token = await getToken();
   const controller = new AbortController();
+  const requestUrl = `${API_URL}${path}`;
   const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 
   const headers: Record<string, string> = {
@@ -22,7 +23,7 @@ export async function api<T = any>(
 
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    res = await fetch(requestUrl, {
       method: options.method || 'GET',
       headers,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
@@ -30,9 +31,9 @@ export async function api<T = any>(
     });
   } catch (err: any) {
     if (err?.name === 'AbortError') {
-      throw new Error('La conexión está tardando demasiado. Comprueba tu internet e inténtalo de nuevo.');
+      throw new Error(`La conexión está tardando demasiado (${path}). Comprueba tu internet e inténtalo de nuevo.`);
     }
-    throw new Error('No se pudo conectar con NutroVia. Comprueba tu conexión e inténtalo de nuevo.');
+    throw new Error(`No se pudo conectar con NutroVia (${path}). Comprueba tu conexión e inténtalo de nuevo.`);
   } finally {
     clearTimeout(timeout);
   }
