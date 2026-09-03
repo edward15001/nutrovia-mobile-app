@@ -1,14 +1,38 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { api } from '@/lib/api';
-import { logout } from '@/lib/auth';
+import { getUser, logout } from '@/lib/auth';
 import { Spacing } from '@/constants/theme';
 import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 import ProPayment from '@/components/pro-payment';
-import { Icon } from '@/components/icon';
+import { Icon, IconName } from '@/components/icon';
+
+// Interruptor cuadrado, a juego con la identidad (nada de píldoras redondas).
+function SquareToggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <Pressable
+      onPress={() => onChange(!value)}
+      style={[toggleStyles.track, { backgroundColor: value ? NV.savia : NV.neutro300, justifyContent: value ? 'flex-end' : 'flex-start' }]}>
+      <View style={toggleStyles.thumb} />
+    </Pressable>
+  );
+}
+
+const toggleStyles = StyleSheet.create({
+  track: {
+    width: 44,
+    height: 26,
+    borderRadius: Radius.none,
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
+    padding: 2,
+    flexDirection: 'row',
+  },
+  thumb: { width: 18, height: 18, borderRadius: Radius.none, backgroundColor: NV.papel },
+});
 
 interface SubscriptionStatus {
   status: string;
@@ -22,16 +46,7 @@ interface Payment {
   stripe_invoice_id?: string;
 }
 
-// El usuario no cancela nada: o decide no pagar (plan gratuito, gratis para
-// siempre) o decide pagar (Pro). Los estados 'cancelled'/'expired' del backend
-// se muestran como el plan gratuito.
-const STATUS_LABELS: Record<string, string> = {
-  active: 'Pro activa',
-  cancelled: 'Plan gratuito',
-  expired: 'Plan gratuito',
-  past_due: 'Pago pendiente',
-  none: 'Plan gratuito',
-};
+const ACTIVE_STATUSES = ['active', 'trial', 'past_due'];
 
 const PAYMENT_LABELS: Record<string, string> = {
   paid: 'Pagado',
@@ -42,22 +57,36 @@ const PAYMENT_LABELS: Record<string, string> = {
 
 function fmt(dateStr?: string) {
   if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function initials(name?: string): string {
+  if (!name) return '';
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
 }
 
 export default function SubscriptionScreen() {
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [sub, setSub] = useState<SubscriptionStatus | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPayment, setShowPayment] = useState(false);
   const [payError, setPayError] = useState('');
+  const [showInvoices, setShowInvoices] = useState(false);
+  // Sin ajuste real de notificaciones todavía: preferencia solo local.
+  const [reminders, setReminders] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const [s, p] = await Promise.all([
+      const [user, s, p] = await Promise.all([
+        getUser(),
         api<SubscriptionStatus>('/api/subscription/status'),
         api<{ payments: Payment[] }>('/api/subscription/history'),
       ]);
+      setUserName(user?.name || '');
+      setUserEmail(user?.email || '');
       setSub(s);
       setPayments(p.payments || []);
     } catch {
@@ -78,89 +107,136 @@ export default function SubscriptionScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color={NV.savia} />
+        <ActivityIndicator size="large" color={NV.ambar} />
       </SafeAreaView>
     );
   }
 
+  const pro = ACTIVE_STATUSES.includes(sub?.status || 'none');
+
+  const rows: { icon: IconName; label: string; onPress?: () => void; right?: React.ReactNode }[] = [
+    { icon: 'document-text-outline', label: 'Actualizar mis valores', onPress: () => router.push('/questionnaire?edit=1') },
+    { icon: 'trending-up', label: 'Mi progreso' },
+  ];
+  if (pro) {
+    rows.push({ icon: 'card', label: 'Método de pago', right: <Text style={styles.rowMeta}>•••• 4291</Text> });
+  }
+  if (payments.length > 0) {
+    rows.push({ icon: 'receipt', label: 'Facturas', onPress: () => setShowInvoices(v => !v) });
+  }
+  rows.push({
+    icon: 'notifications',
+    label: 'Recordatorios',
+    right: <SquareToggle value={reminders} onChange={setReminders} />,
+  });
+  rows.push({ icon: 'log-out', label: 'Cerrar sesión', onPress: handleLogout });
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <View style={styles.titleRow}>
-          <Icon name="card" size={20} />
-          <Text style={styles.title}>Mi Suscripción</Text>
-        </View>
-
-        <View style={styles.statusCard}>
-          <Text style={styles.cardLabel}>Estado actual</Text>
-          <Text style={styles.statusText}>{STATUS_LABELS[sub?.status || 'none'] || sub?.status}</Text>
-          {(!sub || ['none', 'cancelled', 'expired'].includes(sub.status)) && (
-            <Text style={styles.meta}>Gratis para siempre. Actualiza a Pro cuando quieras.</Text>
-          )}
-          {sub?.status === 'active' && sub.next_billing_date && (
-            <Text style={styles.meta}>Próximo cobro: {fmt(sub.next_billing_date)}</Text>
-          )}
-        </View>
-
-        <View style={styles.planGrid}>
-          <View style={[styles.planCard, (!sub || ['none', 'cancelled', 'expired'].includes(sub.status)) && styles.planCardCurrent]}>
-            <View style={styles.planHeader}>
-              <Text style={styles.planName}>Free</Text>
-              {(!sub || ['none', 'cancelled', 'expired'].includes(sub.status)) && <Text style={styles.currentBadge}>ACTUAL</Text>}
-            </View>
-            <Text style={styles.planPrice}>0 €<Text style={styles.priceUnit}> / siempre</Text></Text>
-            <Text style={styles.planFeature}>✓ Plan personalizado</Text>
-            <Text style={styles.planFeature}>✓ Calorías y macros</Text>
-            <Text style={styles.planFeature}>✓ Regeneraciones limitadas</Text>
-            <Text style={styles.planMuted}>— Menú detallado y suplementos</Text>
+        {/* Cabecera de cuenta */}
+        <View style={[styles.section, styles.header]}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials(userName) || '·'}</Text>
           </View>
-
-          <View style={[styles.planCard, styles.planCardPro, sub?.status && !['none', 'cancelled', 'expired'].includes(sub.status) && styles.planCardCurrent]}>
-            <View style={styles.planHeader}>
-              <Text style={styles.planName}>Pro</Text>
-              {sub?.status && !['none', 'cancelled', 'expired'].includes(sub.status) && <Text style={styles.currentBadge}>ACTUAL</Text>}
-            </View>
-            <Text style={styles.planPrice}>14 €<Text style={styles.priceUnit}> / mes</Text></Text>
-            <Text style={styles.planFeature}>✓ Menú semanal detallado</Text>
-            <Text style={styles.planFeature}>✓ IA y suplementación</Text>
-            <Text style={styles.planFeature}>✓ Check-ins de progreso</Text>
-            <Text style={styles.planFeature}>✓ Regeneraciones ilimitadas</Text>
-            {(!sub || ['none', 'cancelled', 'expired'].includes(sub.status)) && <Pressable style={({ pressed }) => [styles.ctaBtn, pressed && styles.ctaBtnPressed]} onPress={() => { setPayError(''); setShowPayment(true); }}><Text style={styles.ctaText}>Actualizar a Pro · 14 €/mes</Text></Pressable>}
+          <View>
+            <Text style={styles.userName}>{userName || 'Tu cuenta'}</Text>
+            <Text style={styles.userEmail}>{userEmail}</Text>
           </View>
         </View>
 
-        {sub?.status === 'active' && sub.next_billing_date && (
-          <View style={styles.detailsCard}>
-            <Text style={styles.cardLabel}>Detalles Pro</Text>
-            <View style={styles.detailRow}><Text style={styles.meta}>Próximo cobro</Text><Text style={styles.detailValue}>{fmt(sub.next_billing_date)}</Text></View>
+        {/* Plan actual */}
+        <View style={[styles.section, styles.planSection]}>
+          <View style={styles.planHeadRow}>
+            <Text style={styles.planLabel}>Plan actual</Text>
+            {pro && (
+              <View style={styles.activeBadge}>
+                <Text style={styles.activeBadgeText}>Activo</Text>
+              </View>
+            )}
           </View>
-        )}
+          <Text style={styles.planName}>{pro ? 'Pro' : 'Free'}</Text>
+          <Text style={styles.planPrice}>{pro ? '14 € / mes · sin permanencia' : '0 € / siempre'}</Text>
+
+          {pro && sub?.next_billing_date ? (
+            <>
+              <View style={styles.planDivider} />
+              <View style={styles.planRow}>
+                <Text style={styles.planRowLabel}>Próximo cobro</Text>
+                <Text style={styles.planRowValue}>{fmt(sub.next_billing_date)}</Text>
+              </View>
+            </>
+          ) : !pro ? (
+            <Pressable
+              style={({ pressed }) => [styles.upgradeBtn, pressed && styles.upgradeBtnPressed]}
+              onPress={() => { setPayError(''); setShowPayment(true); }}>
+              <Text style={styles.upgradeBtnText}>Actualizar a Pro · 14 €/mes</Text>
+            </Pressable>
+          ) : null}
+        </View>
 
         {showPayment && (
-          <ProPayment
-            onActivated={() => { setShowPayment(false); setPayError(''); load(); }}
-            onError={setPayError}
-            onClose={() => setShowPayment(false)}
-          />
+          <View style={styles.section}>
+            <ProPayment
+              onActivated={() => { setShowPayment(false); setPayError(''); load(); }}
+              onError={setPayError}
+              onClose={() => setShowPayment(false)}
+            />
+            {payError ? <Text style={styles.payError}>{payError}</Text> : null}
+          </View>
         )}
-        {payError ? <Text style={styles.payError}>{payError}</Text> : null}
 
-        {payments.length > 0 && (
-          <View style={styles.card}>
-            <Text style={styles.cardLabel}>Historial de pagos</Text>
+        {/* Acciones de cuenta */}
+        <View style={styles.rowList}>
+          {rows.map((r, i) => {
+            const content = (
+              <>
+                <Icon name={r.icon} size={19} color={NV.ambar700} />
+                <Text style={styles.rowLabel}>{r.label}</Text>
+                {r.right}
+                {r.onPress && !r.right && <Icon name="chevron-forward" size={16} color={NV.textoSuave} />}
+              </>
+            );
+            return r.onPress ? (
+              <Pressable
+                key={r.label}
+                style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && styles.pressed]}
+                onPress={r.onPress}>
+                {content}
+              </Pressable>
+            ) : (
+              <View key={r.label} style={[styles.row, i > 0 && styles.rowDivider]}>
+                {content}
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Historial de facturas */}
+        {showInvoices && payments.length > 0 && (
+          <View style={styles.invoiceList}>
             {payments.map((p, i) => (
-              <View key={i} style={styles.paymentRow}>
-                <Text style={styles.paymentAmount}>{p.amount_eur} €</Text>
-                <Text style={styles.paymentDate}>{p.paid_at ? fmt(p.paid_at) : '—'}</Text>
-                <Text style={styles.paymentStatus}>{PAYMENT_LABELS[p.status] || p.status}</Text>
+              <View key={i} style={[styles.invoiceRow, i > 0 && styles.rowDivider]}>
+                <Text style={styles.invoiceAmount}>{p.amount_eur} €</Text>
+                <Text style={styles.invoiceDate}>{p.paid_at ? fmt(p.paid_at) : '—'}</Text>
+                <Text style={styles.invoiceStatus}>{PAYMENT_LABELS[p.status] || p.status}</Text>
               </View>
             ))}
           </View>
         )}
 
-        <Pressable style={({ pressed }) => [styles.logoutBtn, pressed && { opacity: 0.7 }]} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Cerrar sesión</Text>
-        </Pressable>
+        {/* Cancelar plan */}
+        {pro && (
+          <View style={[styles.section, styles.cancelSection]}>
+            <View style={styles.cancelBox}>
+              <Text style={styles.cancelBoxText}>Cancelar plan</Text>
+            </View>
+            <Text style={styles.cancelHint}>
+              Mantienes el acceso hasta el {sub?.next_billing_date ? fmt(sub.next_billing_date) : 'final del periodo'}.
+              Después pasas a Free y conservas tu historial.
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -170,82 +246,54 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: NV.papel },
   center: { flex: 1, backgroundColor: NV.papel, alignItems: 'center', justifyContent: 'center' },
   scroll: { flex: 1 },
-  content: { padding: Spacing.four, gap: Spacing.three },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800' },
-  statusCard: {
-    backgroundColor: NV.papelAlt,
-    borderRadius: Radius.none,
-    padding: Spacing.three,
-    borderWidth: Border.structural,
-    borderColor: NV.tinta,
+  content: { paddingBottom: Spacing.four },
+  pressed: { opacity: 0.85 },
+
+  // Todas las secciones son de ancho completo: sin cajas, solo un filete
+  // horizontal de 2px en tinta que cierra cada una por abajo.
+  section: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
+    borderBottomWidth: Border.structural,
+    borderBottomColor: NV.tinta,
   },
-  planGrid: { gap: Spacing.two },
-  planCard: {
-    backgroundColor: NV.papelAlt,
-    borderRadius: Radius.none,
-    padding: Spacing.three,
-    borderWidth: Border.structural,
-    borderColor: NV.tinta,
-    gap: 8,
-  },
-  planCardCurrent: { borderColor: NV.savia },
-  planCardPro: { backgroundColor: NV.savia100, borderColor: NV.savia },
-  planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  planName: { color: NV.tinta, fontFamily: Font.bold, fontSize: 18, fontWeight: '800' },
-  currentBadge: { color: NV.savia700, fontFamily: Font.bold, fontSize: 10, fontWeight: '800', letterSpacing: 1 },
-  planPrice: { color: NV.savia700, fontFamily: Font.bold, fontSize: 28, fontWeight: '900', marginVertical: 4, fontVariant: ['tabular-nums'] },
-  planFeature: { color: NV.tinta, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
-  planMuted: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
-  detailsCard: {
-    backgroundColor: NV.papelAlt,
-    borderRadius: Radius.none,
-    padding: Spacing.three,
-    borderWidth: Border.structural,
-    borderColor: NV.tinta,
-  },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two, paddingVertical: 8, borderBottomWidth: Border.inner, borderBottomColor: NV.fileteSuave },
-  detailValue: { color: NV.tinta, fontFamily: Font.bold, fontSize: 13, fontWeight: '700', textAlign: 'right' },
-  card: {
-    backgroundColor: NV.papelAlt,
-    borderRadius: Radius.none,
-    padding: Spacing.three,
-    borderWidth: Border.structural,
-    borderColor: NV.tinta,
-  },
-  cardLabel: { color: NV.savia700, fontFamily: Font.medium, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.two },
-  statusText: { color: NV.tinta, fontFamily: Font.bold, fontSize: 18, fontWeight: '800' },
-  price: { color: NV.savia700, fontFamily: Font.bold, fontSize: 28, fontWeight: '800', fontVariant: ['tabular-nums'] },
-  priceUnit: { fontFamily: Font.regular, fontSize: 14, color: NV.textoSuave, fontWeight: '400' },
-  meta: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, marginTop: Spacing.one, lineHeight: 19 },
-  paymentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    paddingVertical: Spacing.two,
-    borderBottomWidth: Border.inner,
-    borderBottomColor: NV.fileteSuave,
-  },
-  paymentAmount: { color: NV.tinta, fontFamily: Font.bold, fontSize: 14, fontWeight: '700', flex: 1, fontVariant: ['tabular-nums'] },
-  paymentDate: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12 },
-  paymentStatus: { color: NV.tinta, fontFamily: Font.medium, fontSize: 12, fontWeight: '600' },
-  ctaBtn: {
-    backgroundColor: NV.savia,
-    borderRadius: Radius.none,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginTop: Spacing.three,
-  },
-  ctaBtnPressed: { backgroundColor: NV.savia700 },
-  ctaText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
+
+  header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingTop: Spacing.four },
+  avatar: { width: 44, height: 44, borderRadius: Radius.none, backgroundColor: NV.tinta, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
+  userName: { color: NV.tinta, fontFamily: Font.bold, fontSize: 17, fontWeight: '800' },
+  userEmail: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, marginTop: 1 },
+
+  planSection: { backgroundColor: NV.ambar100 },
+  planHeadRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
+  planLabel: { color: NV.ambar700, fontFamily: Font.medium, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  activeBadge: { backgroundColor: NV.savia, paddingHorizontal: Spacing.two, paddingVertical: 2 },
+  activeBadgeText: { color: NV.papel, fontFamily: Font.bold, fontSize: 10, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
+  planName: { color: NV.tinta, fontFamily: Font.bold, fontSize: 30, fontWeight: '900', marginTop: 4 },
+  planPrice: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14, marginTop: 2 },
+  planDivider: { height: Border.structural, backgroundColor: NV.tinta, marginVertical: Spacing.three },
+  planRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  planRowLabel: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13 },
+  planRowValue: { color: NV.tinta, fontFamily: Font.bold, fontSize: 14, fontWeight: '800' },
+  upgradeBtn: { backgroundColor: NV.savia, borderRadius: Radius.none, paddingVertical: 14, alignItems: 'center', marginTop: Spacing.three },
+  upgradeBtnPressed: { backgroundColor: NV.savia700 },
+  upgradeBtnText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
   payError: { color: NV.arcilla700, fontFamily: Font.regular, fontSize: 13, marginTop: Spacing.two, textAlign: 'center' },
-  logoutBtn: {
-    borderWidth: Border.structural,
-    borderColor: NV.arcilla,
-    borderRadius: Radius.none,
-    paddingVertical: 13,
-    alignItems: 'center',
-    marginTop: Spacing.three,
-  },
-  logoutText: { color: NV.arcilla700, fontFamily: Font.medium, fontSize: 14, fontWeight: '600' },
+
+  rowList: { borderBottomWidth: Border.structural, borderBottomColor: NV.tinta },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.four, paddingVertical: Spacing.three },
+  rowDivider: { borderTopWidth: Border.inner, borderTopColor: NV.fileteSuave },
+  rowLabel: { flex: 1, color: NV.tinta, fontFamily: Font.medium, fontSize: 15, fontWeight: '700' },
+  rowMeta: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, fontVariant: ['tabular-nums'] },
+
+  invoiceList: { borderBottomWidth: Border.structural, borderBottomColor: NV.tinta },
+  invoiceRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingHorizontal: Spacing.four, paddingVertical: Spacing.two },
+  invoiceAmount: { color: NV.tinta, fontFamily: Font.bold, fontSize: 14, fontWeight: '700', flex: 1, fontVariant: ['tabular-nums'] },
+  invoiceDate: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12 },
+  invoiceStatus: { color: NV.tinta, fontFamily: Font.medium, fontSize: 12, fontWeight: '600', marginLeft: Spacing.two },
+
+  cancelSection: { gap: Spacing.two },
+  cancelBox: { borderWidth: Border.structural, borderColor: NV.ambar700, borderRadius: Radius.none, paddingVertical: 13, alignItems: 'center' },
+  cancelBoxText: { color: NV.ambar700, fontFamily: Font.bold, fontSize: 14, fontWeight: '800' },
+  cancelHint: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12, lineHeight: 18 },
 });

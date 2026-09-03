@@ -4,11 +4,22 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getPlan, isPro, NutritionPlan } from '@/lib/plan';
-import { Spacing } from '@/constants/theme';
 import { Border, Font, NV, Radius } from '@/constants/nutrovia';
+import { Spacing } from '@/constants/theme';
 import { Icon, IconName } from '@/components/icon';
 
-const ICONS: IconName[] = ['medkit', 'leaf', 'flash', 'water', 'medkit', 'leaf', 'flask'];
+// Icono por tipo de suplemento, a partir del nombre (heurística simple).
+function iconFor(nombre: string): IconName {
+  const n = nombre.toLowerCase();
+  if (n.includes('vitamina d') || n.includes('sol')) return 'sunny';
+  if (n.includes('creatina')) return 'flash';
+  if (n.includes('proteína') || n.includes('proteina')) return 'flask';
+  return 'medkit';
+}
+
+// Prioridad y momento de toma: ejemplo hasta que el plan traiga estos campos reales.
+const PRIORITY_EXAMPLE = ['Prioridad alta', 'Prioridad alta', 'Opcional'];
+const MOMENT_EXAMPLE = ['Post-entreno', 'Con comida', 'Indiferente'];
 
 export default function SupplementsScreen() {
   const [plan, setPlan] = useState<NutritionPlan | null>(null);
@@ -42,22 +53,14 @@ export default function SupplementsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        <View style={styles.titleRow}>
-          <Icon name="flask" size={20} />
-          <Text style={styles.title}>Suplementación</Text>
-        </View>
-
-        <View style={styles.disclaimer}>
-          <Icon name="warning" size={16} />
-          <Text style={styles.disclaimerText}>
-            Las recomendaciones son orientativas. Consulta siempre con un profesional de la salud.
-          </Text>
+        <View style={[styles.section, styles.header]}>
+          <Text style={styles.headerLabel}>Tu plan justifica {supps.length}</Text>
+          <Text style={styles.headerTitle}>Solo lo que tus números piden</Text>
         </View>
 
         {!pro ? (
-          // La suplementación es exclusiva de Pro
-          <View style={styles.lockBox}>
-            <Icon name="lock-closed" size={26} />
+          <View style={[styles.section, styles.lockSection]}>
+            <Icon name="lock-closed" size={26} color={NV.malva} />
             <Text style={styles.lockTitle}>Suplementación solo en Pro</Text>
             <Text style={styles.lockText}>
               Descubre qué suplementos encajan con tu plan actualizando a Pro.
@@ -69,20 +72,45 @@ export default function SupplementsScreen() {
             </Pressable>
           </View>
         ) : supps.length === 0 ? (
-          <Text style={styles.emptyText}>No hay suplementos en tu plan.</Text>
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>No hay suplementos en tu plan.</Text>
+          </View>
         ) : (
-          supps.map((s, i) => (
-            <View key={i} style={styles.card}>
-              <View style={styles.row}>
-                <Icon name={ICONS[i % ICONS.length]} size={24} />
-                <View style={styles.info}>
-                  <Text style={styles.name}>{s.nombre}</Text>
-                  <Text style={styles.dosis}>{s.dosis}</Text>
-                  <Text style={styles.motivo}>{s.motivo}</Text>
+          <View style={styles.list}>
+            {supps.map((s, i) => (
+              <View key={i}>
+                {i > 0 && <View style={styles.itemSeparator} />}
+                <View style={styles.item}>
+                  <View style={styles.itemLabelRow}>
+                    <Icon name={iconFor(s.nombre)} size={18} color={NV.malva} />
+                    <Text style={styles.itemPriority}>{PRIORITY_EXAMPLE[i % 3]}</Text>
+                  </View>
+                  <Text style={styles.itemName}>{s.nombre}</Text>
+                  <Text style={styles.itemMotivo}>{s.motivo}</Text>
+
+                  <View style={styles.itemStatsRow}>
+                    <View style={styles.itemStat}>
+                      <Text style={styles.itemStatLabel}>Dosis</Text>
+                      <Text style={styles.itemStatValue}>{s.dosis}</Text>
+                    </View>
+                    <View style={[styles.itemStat, styles.itemStatEnd]}>
+                      <Text style={styles.itemStatLabel}>Momento</Text>
+                      <Text style={styles.itemStatValue}>{MOMENT_EXAMPLE[i % 3]}</Text>
+                    </View>
+                  </View>
                 </View>
               </View>
-            </View>
-          ))
+            ))}
+          </View>
+        )}
+
+        {supps.length > 0 && pro && (
+          <View style={[styles.section, styles.disclaimer]}>
+            <Icon name="warning" size={18} color={NV.ambar700} />
+            <Text style={styles.disclaimerText}>
+              No sustituye el consejo de un médico. Si tomas medicación, consúltalo antes de empezar.
+            </Text>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -93,42 +121,42 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: NV.papel },
   center: { flex: 1, backgroundColor: NV.papel, alignItems: 'center', justifyContent: 'center' },
   scroll: { flex: 1 },
-  content: { padding: Spacing.four, gap: Spacing.three },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800' },
-  disclaimer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: NV.ambar100,
-    borderColor: NV.ambar,
-    borderWidth: Border.structural,
-    borderRadius: Radius.none,
-    padding: Spacing.three,
+  content: { paddingBottom: Spacing.four },
+
+  // Todas las secciones son de ancho completo: sin cajas, solo un filete
+  // horizontal de 2px en tinta que cierra cada una por abajo.
+  section: {
+    paddingHorizontal: Spacing.four,
+    paddingVertical: Spacing.three,
+    borderBottomWidth: Border.structural,
+    borderBottomColor: NV.tinta,
   },
-  disclaimerText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19, flex: 1 },
-  card: {
-    backgroundColor: NV.papelAlt,
-    borderRadius: Radius.none,
-    padding: Spacing.three,
-    borderWidth: Border.structural,
-    borderColor: NV.tinta,
-  },
-  row: { flexDirection: 'row', gap: Spacing.three, alignItems: 'center' },
-  info: { flex: 1, gap: Spacing.one },
-  name: { color: NV.tinta, fontFamily: Font.bold, fontSize: 15, fontWeight: '700' },
-  dosis: { color: NV.malva700, fontFamily: Font.medium, fontSize: 13 },
-  motivo: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
+
+  header: { backgroundColor: NV.malva100, paddingTop: Spacing.four, gap: 4 },
+  headerLabel: { color: NV.malva700, fontFamily: Font.medium, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  headerTitle: { color: NV.tinta, fontFamily: Font.serif, fontSize: 24 },
+
+  list: { borderBottomWidth: Border.structural, borderBottomColor: NV.tinta },
+  item: { paddingHorizontal: Spacing.four, paddingVertical: Spacing.five, gap: Spacing.two },
+  itemSeparator: { height: Border.structural, backgroundColor: NV.fileteSuave, marginHorizontal: Spacing.four },
+  itemLabelRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
+  itemPriority: { color: NV.malva700, fontFamily: Font.medium, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  // Todo el bloque de texto se indenta para alinear con el texto de
+  // PRIORIDAD, no con el icono de arriba.
+  itemName: { color: NV.tinta, fontFamily: Font.bold, fontSize: 20, fontWeight: '800', marginLeft: 22 },
+  itemMotivo: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19, marginLeft: 22 },
+  itemStatsRow: { flexDirection: 'row', marginTop: Spacing.two, marginLeft: 22 },
+  itemStat: { flex: 1 },
+  itemStatEnd: { alignItems: 'flex-end' },
+  itemStatLabel: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  itemStatValue: { color: NV.tinta, fontFamily: Font.bold, fontSize: 15, fontWeight: '800', marginTop: 2 },
+
+  disclaimer: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, backgroundColor: NV.ambar100 },
+  disclaimerText: { flex: 1, color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
+
+  empty: { padding: Spacing.four, alignItems: 'center' },
   emptyText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14 },
-  lockBox: {
-    backgroundColor: NV.malva100,
-    borderColor: NV.malva,
-    borderWidth: Border.structural,
-    borderRadius: Radius.none,
-    padding: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
+  lockSection: { backgroundColor: NV.malva100, alignItems: 'center', gap: Spacing.two },
   lockTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 17, fontWeight: '800', textAlign: 'center' },
   lockText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19, textAlign: 'center' },
   lockBtn: { backgroundColor: NV.savia, borderRadius: Radius.none, paddingHorizontal: Spacing.four, paddingVertical: 12, marginTop: Spacing.two },

@@ -47,11 +47,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Sin fontWeight: Keratus es un solo peso — combinarlo con fontWeight hace
+  // que Android descarte el tipo personalizado y use uno del sistema.
   logo: {
     color: NV.tinta,
     fontFamily: Font.brand,
     fontSize: 34,
-    fontWeight: '800',
     letterSpacing: 6,
   },
   logoDot: {

@@ -29,7 +29,15 @@ export type IconName =
   | 'medkit'
   | 'leaf'
   | 'flash'
-  | 'warning';
+  | 'warning'
+  | 'notifications'
+  | 'circle-outline'
+  | 'cafe'
+  | 'moon'
+  | 'sunny'
+  | 'receipt'
+  | 'log-out'
+  | 'chevron-forward';
 
 const MAP: Record<IconName, Name> = {
   home: 'home-outline',
@@ -56,6 +64,14 @@ const MAP: Record<IconName, Name> = {
   leaf: 'leaf-outline',
   flash: 'flash-outline',
   warning: 'warning-outline',
+  notifications: 'notifications-outline',
+  'circle-outline': 'ellipse-outline',
+  cafe: 'cafe-outline',
+  moon: 'moon-outline',
+  sunny: 'sunny-outline',
+  receipt: 'receipt-outline',
+  'log-out': 'log-out-outline',
+  'chevron-forward': 'chevron-forward',
 };
 
 /**
