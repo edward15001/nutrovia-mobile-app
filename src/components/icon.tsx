@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { ComponentProps } from 'react';
 
-type Name = ComponentProps<typeof Ionicons>['name'];
+import { NV } from '@/constants/nutrovia';
 
-// Iconos minimalistas (mismo espíritu que el rediseño web de NutroVia).
-const GOLD = '#C9A84C';
+type Name = ComponentProps<typeof Ionicons>['name'];
 
 export type IconName =
   | 'home'
@@ -59,11 +58,17 @@ const MAP: Record<IconName, Name> = {
   warning: 'warning-outline',
 };
 
-/** Ícono minimalista del set de NutroVia. Usa Ionicons (multiplataforma). */
+/**
+ * Ícono del set de NutroVia (Ionicons outline, multiplataforma).
+ *
+ * Por defecto va en tinta: un icono acompaña a una etiqueta, no la sustituye
+ * ni pide atención. En savia solo cuando marca un estado conseguido; en el
+ * color del dominio (arcilla, malva, ámbar) cuando clasifica.
+ */
 export function Icon({
   name,
   size = 18,
-  color = GOLD,
+  color = NV.tinta,
 }: {
   name: IconName;
   size?: number;

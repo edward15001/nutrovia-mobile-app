@@ -6,12 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { api } from '@/lib/api';
 import { logout } from '@/lib/auth';
 import { Spacing } from '@/constants/theme';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 import ProPayment from '@/components/pro-payment';
 import { Icon } from '@/components/icon';
-
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
 
 interface SubscriptionStatus {
   status: string;
@@ -81,7 +78,7 @@ export default function SubscriptionScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color={GOLD} />
+        <ActivityIndicator size="large" color={NV.savia} />
       </SafeAreaView>
     );
   }
@@ -170,85 +167,85 @@ export default function SubscriptionScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: DARK },
-  center: { flex: 1, backgroundColor: DARK, alignItems: 'center', justifyContent: 'center' },
+  safeArea: { flex: 1, backgroundColor: NV.papel },
+  center: { flex: 1, backgroundColor: NV.papel, alignItems: 'center', justifyContent: 'center' },
   scroll: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { color: '#fff', fontSize: 22, fontWeight: '800' },
+  title: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800' },
   statusCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 14,
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
     padding: Spacing.three,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
   planGrid: { gap: Spacing.two },
   planCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 14,
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
     padding: Spacing.three,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
     gap: 8,
   },
-  planCardCurrent: { borderColor: GOLD },
-  planCardPro: { backgroundColor: 'rgba(201,168,76,0.1)', borderColor: 'rgba(201,168,76,0.4)' },
+  planCardCurrent: { borderColor: NV.savia },
+  planCardPro: { backgroundColor: NV.savia100, borderColor: NV.savia },
   planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  planName: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  currentBadge: { color: GOLD, fontSize: 10, fontWeight: '800', letterSpacing: 1 },
-  planPrice: { color: GOLD, fontSize: 28, fontWeight: '900', marginVertical: 4 },
-  planFeature: { color: '#fff', fontSize: 13, lineHeight: 19 },
-  planMuted: { color: MUTED, fontSize: 13, lineHeight: 19 },
+  planName: { color: NV.tinta, fontFamily: Font.bold, fontSize: 18, fontWeight: '800' },
+  currentBadge: { color: NV.savia700, fontFamily: Font.bold, fontSize: 10, fontWeight: '800', letterSpacing: 1 },
+  planPrice: { color: NV.savia700, fontFamily: Font.bold, fontSize: 28, fontWeight: '900', marginVertical: 4, fontVariant: ['tabular-nums'] },
+  planFeature: { color: NV.tinta, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
+  planMuted: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
   detailsCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 14,
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
     padding: Spacing.three,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
-  detailRow: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#2A2A2A' },
-  detailValue: { color: '#fff', fontSize: 13, fontWeight: '700', textAlign: 'right' },
+  detailRow: { flexDirection: 'row', justifyContent: 'space-between', gap: Spacing.two, paddingVertical: 8, borderBottomWidth: Border.inner, borderBottomColor: NV.fileteSuave },
+  detailValue: { color: NV.tinta, fontFamily: Font.bold, fontSize: 13, fontWeight: '700', textAlign: 'right' },
   card: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
     padding: Spacing.three,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
-  cardLabel: { color: GOLD, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.two },
-  statusText: { color: '#fff', fontSize: 18, fontWeight: '800' },
-  price: { color: GOLD, fontSize: 28, fontWeight: '800' },
-  priceUnit: { fontSize: 14, color: MUTED, fontWeight: '400' },
-  meta: { color: MUTED, fontSize: 13, marginTop: Spacing.one, lineHeight: 19 },
+  cardLabel: { color: NV.savia700, fontFamily: Font.medium, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.two },
+  statusText: { color: NV.tinta, fontFamily: Font.bold, fontSize: 18, fontWeight: '800' },
+  price: { color: NV.savia700, fontFamily: Font.bold, fontSize: 28, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  priceUnit: { fontFamily: Font.regular, fontSize: 14, color: NV.textoSuave, fontWeight: '400' },
+  meta: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, marginTop: Spacing.one, lineHeight: 19 },
   paymentRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
     paddingVertical: Spacing.two,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2A2A2A',
+    borderBottomWidth: Border.inner,
+    borderBottomColor: NV.fileteSuave,
   },
-  paymentAmount: { color: '#fff', fontSize: 14, fontWeight: '700', flex: 1 },
-  paymentDate: { color: MUTED, fontSize: 12 },
-  paymentStatus: { color: '#fff', fontSize: 12, fontWeight: '600' },
+  paymentAmount: { color: NV.tinta, fontFamily: Font.bold, fontSize: 14, fontWeight: '700', flex: 1, fontVariant: ['tabular-nums'] },
+  paymentDate: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12 },
+  paymentStatus: { color: NV.tinta, fontFamily: Font.medium, fontSize: 12, fontWeight: '600' },
   ctaBtn: {
-    backgroundColor: GOLD,
-    borderRadius: 12,
+    backgroundColor: NV.savia,
+    borderRadius: Radius.none,
     paddingVertical: 15,
     alignItems: 'center',
     marginTop: Spacing.three,
   },
-  ctaBtnPressed: { opacity: 0.85 },
-  ctaText: { color: DARK, fontSize: 15, fontWeight: '800' },
-  payError: { color: '#E55B5B', fontSize: 13, marginTop: Spacing.two, textAlign: 'center' },
+  ctaBtnPressed: { backgroundColor: NV.savia700 },
+  ctaText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
+  payError: { color: NV.arcilla700, fontFamily: Font.regular, fontSize: 13, marginTop: Spacing.two, textAlign: 'center' },
   logoutBtn: {
-    borderWidth: 1,
-    borderColor: '#E55B5B',
-    borderRadius: 10,
+    borderWidth: Border.structural,
+    borderColor: NV.arcilla,
+    borderRadius: Radius.none,
     paddingVertical: 13,
     alignItems: 'center',
     marginTop: Spacing.three,
   },
-  logoutText: { color: '#E55B5B', fontSize: 14, fontWeight: '600' },
+  logoutText: { color: NV.arcilla700, fontFamily: Font.medium, fontSize: 14, fontWeight: '600' },
 });

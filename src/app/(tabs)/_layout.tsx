@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 
-const GOLD = '#C9A84C';
+import { Border, Font, NV } from '@/constants/nutrovia';
 
 function TabIcon({ name, color }: { name: any; color: any }) {
   return <Ionicons name={name} size={20} color={color} />;
@@ -12,9 +12,16 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: { backgroundColor: '#111', borderTopColor: '#222' },
-        tabBarActiveTintColor: GOLD,
-        tabBarInactiveTintColor: '#888880',
+        // Barra en papel elevado con filete de 2px en tinta: la misma
+        // estructura que separa las secciones en la web.
+        tabBarStyle: {
+          backgroundColor: NV.papelAlt,
+          borderTopColor: NV.tinta,
+          borderTopWidth: Border.structural,
+        },
+        tabBarLabelStyle: { fontFamily: Font.medium, fontSize: 11, letterSpacing: 0.2 },
+        tabBarActiveTintColor: NV.savia700,
+        tabBarInactiveTintColor: NV.textoSuave,
       }}>
       <Tabs.Screen
         name="index"

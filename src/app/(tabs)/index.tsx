@@ -19,11 +19,8 @@ import { getUser } from '@/lib/auth';
 import { deleteFood, getTodaySummary, FoodDaySummary, FoodEntry } from '@/lib/foodlog';
 import { getCheckinStatus, respondCheckin } from '@/lib/checkin';
 import { Spacing } from '@/constants/theme';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 import { Icon, IconName } from '@/components/icon';
-
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
 
 const GOAL_LABELS: Record<string, string> = {
   perder_peso: 'Perder peso',
@@ -80,23 +77,23 @@ function GoalRing({ kcal, proteinG, carbsG, fatG }: { kcal: number; proteinG: nu
     <View style={styles.ringBox}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         {/* fondo del anillo */}
-        <Circle cx={cx} cy={cx} r={50} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={7} />
+        <Circle cx={cx} cy={cx} r={50} fill="none" stroke={NV.neutro300} strokeWidth={7} />
         {/* Proteína (exterior) */}
         <Circle
-          cx={cx} cy={cx} r={50} fill="none" stroke="#f0d58c" strokeWidth={7} strokeLinecap="round"
+          cx={cx} cy={cx} r={50} fill="none" stroke={NV.savia} strokeWidth={7} strokeLinecap="round"
           strokeDasharray={`${pFrac * circ(50)} ${circ(50)}`}
           transform={`rotate(-90 ${cx} ${cx})`}
         />
         {/* Carbos (medio) */}
         <Circle
-          cx={cx} cy={cx} r={40} fill="none" stroke="#c9a84c" strokeWidth={7} strokeLinecap="round"
+          cx={cx} cy={cx} r={40} fill="none" stroke={NV.malva} strokeWidth={7} strokeLinecap="round"
           strokeDasharray={`${cFrac * circ(40)} ${circ(40)}`}
           strokeDashoffset={-circ(40) * pFrac}
           transform={`rotate(-90 ${cx} ${cx})`}
         />
         {/* Grasas (interior) */}
         <Circle
-          cx={cx} cy={cx} r={30} fill="none" stroke="#9e7f2e" strokeWidth={7} strokeLinecap="round"
+          cx={cx} cy={cx} r={30} fill="none" stroke={NV.ambar} strokeWidth={7} strokeLinecap="round"
           strokeDasharray={`${gFrac * circ(30)} ${circ(30)}`}
           strokeDashoffset={-circ(30) * (pFrac + cFrac)}
           transform={`rotate(-90 ${cx} ${cx})`}
@@ -240,7 +237,7 @@ export default function OverviewScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color={GOLD} />
+        <ActivityIndicator size="large" color={NV.savia} />
       </SafeAreaView>
     );
   }
@@ -251,7 +248,7 @@ export default function OverviewScreen() {
         <Text style={styles.emptyTitle}>Aún no tienes un plan</Text>
         <Text style={styles.emptyText}>Completa el cuestionario para recibir tu plan personalizado</Text>
         <Pressable
-          style={({ pressed }) => [styles.ctaBtn, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.ctaBtn, pressed && styles.ctaBtnPressed]}
           onPress={() => router.push('/questionnaire')}>
           <Text style={styles.ctaText}>Comenzar ahora</Text>
         </Pressable>
@@ -267,7 +264,7 @@ export default function OverviewScreen() {
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={GOLD} />}>
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={NV.savia} />}>
 
         {/* Saludo + editar plan */}
         <View style={styles.greetingRow}>
@@ -293,7 +290,7 @@ export default function OverviewScreen() {
               <Text style={styles.upgradeTitle}>Actualiza a Pro · 14 €/mes</Text>
               <Text style={styles.upgradeSub}>Desbloquea menú detallado, IA y suplementos</Text>
             </View>
-            <Icon name="arrow-forward" size={16} color={DARK} />
+            <Icon name="arrow-forward" size={16} color={NV.papel} />
           </Pressable>
         )}
 
@@ -403,7 +400,7 @@ export default function OverviewScreen() {
               Si algo ha cambiado, podemos ajustar tu plan al momento.
             </Text>
             <Pressable
-              style={({ pressed }) => [styles.checkinGoodBtn, pressed && styles.pressed]}
+              style={({ pressed }) => [styles.checkinGoodBtn, pressed && styles.checkinGoodBtnPressed]}
               onPress={() => onCheckin('all_good')}>
               <Text style={styles.checkinGoodText}>Todo va bien</Text>
             </Pressable>
@@ -420,141 +417,142 @@ export default function OverviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: DARK },
-  center: { flex: 1, backgroundColor: DARK, alignItems: 'center', justifyContent: 'center', padding: Spacing.four },
+  safeArea: { flex: 1, backgroundColor: NV.papel },
+  center: { flex: 1, backgroundColor: NV.papel, alignItems: 'center', justifyContent: 'center', padding: Spacing.four },
   scroll: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
   greetingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two },
-  greeting: { color: '#fff', fontSize: 22, fontWeight: '800', flexShrink: 1 },
+  greeting: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800', flexShrink: 1 },
   editBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#1A1A1A',
-    borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.4)',
-    borderRadius: 8,
+    backgroundColor: NV.papelAlt,
+    borderWidth: Border.structural,
+    borderColor: NV.savia,
+    borderRadius: Radius.none,
     paddingHorizontal: Spacing.two + 2,
     paddingVertical: 6,
   },
-  editBtnText: { color: GOLD, fontSize: 12, fontWeight: '700' },
+  editBtnText: { color: NV.savia, fontFamily: Font.medium, fontSize: 12, fontWeight: '700' },
 
   upgradeCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
-    backgroundColor: 'rgba(201,168,76,0.1)',
-    borderColor: 'rgba(201,168,76,0.4)',
-    borderWidth: 1,
-    borderRadius: 12,
+    backgroundColor: NV.savia100,
+    borderColor: NV.savia,
+    borderWidth: Border.structural,
+    borderRadius: Radius.none,
     padding: Spacing.three,
   },
   upgradeTextWrap: { flex: 1 },
-  upgradeTitle: { color: '#fff', fontSize: 14, fontWeight: '800' },
-  upgradeSub: { color: MUTED, fontSize: 12, marginTop: 2 },
+  upgradeTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 14, fontWeight: '800' },
+  upgradeSub: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12, marginTop: 2 },
   pressed: { opacity: 0.85 },
 
   todayCard: {
-    backgroundColor: 'rgba(201,168,76,0.08)',
-    borderColor: 'rgba(201,168,76,0.35)',
-    borderWidth: 1,
-    borderRadius: 12,
+    backgroundColor: NV.savia100,
+    borderColor: NV.savia,
+    borderWidth: Border.structural,
+    borderRadius: Radius.none,
     padding: Spacing.three,
     gap: Spacing.two,
   },
   todayHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   todayMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  mealSection: { borderTopWidth: 1, borderTopColor: 'rgba(201,168,76,0.2)', paddingTop: Spacing.two, gap: Spacing.two },
+  mealSection: { borderTopWidth: Border.inner, borderTopColor: NV.fileteSuave, paddingTop: Spacing.two, gap: Spacing.two },
   mealSectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  mealSectionLabel: { color: GOLD, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-  mealSectionKcal: { color: MUTED, fontSize: 12, fontWeight: '600' },
+  mealSectionLabel: { color: NV.savia700, fontFamily: Font.medium, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
+  mealSectionKcal: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 12, fontWeight: '600' },
   entryRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   entryInfo: { flex: 1 },
-  entryName: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  entryMacros: { color: MUTED, fontSize: 11, marginTop: 1 },
-  entryKcal: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  entryName: { color: NV.tinta, fontFamily: Font.medium, fontSize: 14, fontWeight: '600' },
+  entryMacros: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 11, marginTop: 1 },
+  entryKcal: { color: NV.tinta, fontFamily: Font.bold, fontSize: 13, fontWeight: '700' },
   deleteBtn: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: Radius.none,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(229,91,91,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(229,91,91,0.4)',
+    backgroundColor: NV.arcilla100,
+    borderWidth: Border.structural,
+    borderColor: NV.arcilla,
   },
-  deleteBtnText: { color: '#E55B5B', fontSize: 13, fontWeight: '800', lineHeight: 15 },
+  deleteBtnText: { color: NV.arcilla700, fontFamily: Font.bold, fontSize: 13, fontWeight: '800', lineHeight: 15 },
 
-  bentoLabel: { color: GOLD, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
-  todayValue: { color: '#fff', fontSize: 26, fontWeight: '900' },
-  todayUnit: { color: MUTED, fontSize: 14 },
-  streakPill: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', backgroundColor: 'rgba(201,168,76,0.15)', borderRadius: 8, paddingHorizontal: Spacing.two, paddingVertical: 4 },
-  streakText: { color: '#fff', fontSize: 12, fontWeight: '700' },
-  todayRemain: { color: GOLD, fontSize: 13, fontWeight: '700' },
-  todayEmpty: { color: MUTED, fontSize: 12, lineHeight: 18 },
+  bentoLabel: { color: NV.savia700, fontFamily: Font.medium, fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  todayValue: { color: NV.tinta, fontFamily: Font.bold, fontSize: 26, fontWeight: '900', fontVariant: ['tabular-nums'] },
+  todayUnit: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14 },
+  streakPill: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', backgroundColor: NV.savia100, borderRadius: Radius.none, paddingHorizontal: Spacing.two, paddingVertical: 4 },
+  streakText: { color: NV.tinta, fontFamily: Font.medium, fontSize: 12, fontWeight: '700' },
+  todayRemain: { color: NV.savia700, fontFamily: Font.medium, fontSize: 13, fontWeight: '700' },
+  todayEmpty: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12, lineHeight: 18 },
 
   goalCard: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    backgroundColor: 'rgba(201,168,76,0.08)',
-    borderColor: 'rgba(201,168,76,0.35)',
-    borderWidth: 1,
-    borderRadius: 14,
+    backgroundColor: NV.savia100,
+    borderColor: NV.savia,
+    borderWidth: Border.structural,
+    borderRadius: Radius.none,
     padding: Spacing.three,
   },
   goalInfo: { flex: 1, gap: 6 },
-  goalTitle: { color: '#fff', fontSize: 20, fontWeight: '900' },
-  goalSub: { color: MUTED, fontSize: 12 },
+  goalTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 20, fontWeight: '900' },
+  goalSub: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12 },
   goalChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 4 },
   goalChip: {
-    color: GOLD,
+    color: NV.savia700,
+    fontFamily: Font.medium,
     fontSize: 11,
     fontWeight: '700',
-    backgroundColor: 'rgba(201,168,76,0.12)',
-    borderRadius: 6,
+    backgroundColor: NV.savia100,
+    borderRadius: Radius.none,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   ringBox: { width: 130, height: 130, alignItems: 'center', justifyContent: 'center' },
   ringCenter: { position: 'absolute', alignItems: 'center' },
-  ringNum: { color: '#fff', fontSize: 22, fontWeight: '900' },
-  ringUnit: { color: MUTED, fontSize: 9, letterSpacing: 0.5, marginTop: 1 },
+  ringNum: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'] },
+  ringUnit: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 9, letterSpacing: 0.5, marginTop: 1 },
 
   bentoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   bento: {
     flexBasis: '47%',
     flexGrow: 1,
-    backgroundColor: '#1A1A1A',
-    borderColor: '#2A2A2A',
-    borderWidth: 1,
-    borderRadius: 14,
+    backgroundColor: NV.papelAlt,
+    borderColor: NV.tinta,
+    borderWidth: Border.structural,
+    borderRadius: Radius.none,
     padding: Spacing.three,
     gap: Spacing.two,
   },
-  bentoAccent: { backgroundColor: 'rgba(201,168,76,0.1)', borderColor: 'rgba(201,168,76,0.35)' },
+  bentoAccent: { backgroundColor: NV.savia100, borderColor: NV.savia },
   bentoHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one },
-  bentoEmphasis: { color: '#fff', fontSize: 22, fontWeight: '900' },
-  bentoUnit: { fontSize: 14, color: MUTED, fontWeight: '600' },
-  bentoSub: { color: MUTED, fontSize: 12 },
-  tip: { color: MUTED, fontSize: 12, lineHeight: 18 },
+  bentoEmphasis: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'] },
+  bentoUnit: { fontFamily: Font.medium, fontSize: 14, color: NV.textoSuave, fontWeight: '600' },
+  bentoSub: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12 },
+  tip: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12, lineHeight: 18 },
 
   profileGrid: { gap: Spacing.one },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  error: { color: '#E55B5B', fontSize: 13, marginTop: Spacing.two },
+  error: { color: NV.arcilla700, fontFamily: Font.regular, fontSize: 13, marginTop: Spacing.two },
 
   checkinOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: NV.veloTinta,
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.four,
   },
   checkinModal: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.4)',
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
+    borderWidth: Border.structural,
+    borderColor: NV.savia,
     padding: Spacing.four,
     width: '100%',
     maxWidth: 400,
@@ -564,33 +562,35 @@ const styles = StyleSheet.create({
   checkinIcon: {
     width: 64,
     height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(201,168,76,0.12)',
+    borderRadius: Radius.none,
+    backgroundColor: NV.savia100,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.one,
   },
-  checkinTitle: { color: '#fff', fontSize: 20, fontWeight: '800', textAlign: 'center' },
-  checkinText: { color: MUTED, fontSize: 14, lineHeight: 20, textAlign: 'center', marginBottom: Spacing.two },
+  checkinTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 20, fontWeight: '800', textAlign: 'center' },
+  checkinText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14, lineHeight: 20, textAlign: 'center', marginBottom: Spacing.two },
   checkinGoodBtn: {
-    backgroundColor: GOLD,
-    borderRadius: 12,
+    backgroundColor: NV.savia,
+    borderRadius: Radius.none,
     paddingVertical: 14,
     alignItems: 'center',
     width: '100%',
   },
-  checkinGoodText: { color: DARK, fontSize: 15, fontWeight: '800' },
+  checkinGoodBtnPressed: { backgroundColor: NV.savia700 },
+  checkinGoodText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
   checkinChangeBtn: {
-    borderRadius: 12,
+    borderRadius: Radius.none,
     paddingVertical: 13,
     alignItems: 'center',
     width: '100%',
-    borderWidth: 1,
-    borderColor: '#333',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
-  checkinChangeText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  emptyTitle: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  emptyText: { color: MUTED, fontSize: 14, textAlign: 'center', marginTop: Spacing.two },
-  ctaBtn: { backgroundColor: GOLD, borderRadius: 12, paddingVertical: 14, paddingHorizontal: Spacing.four, marginTop: Spacing.four },
-  ctaText: { color: DARK, fontSize: 15, fontWeight: '800' },
+  checkinChangeText: { color: NV.tinta, fontFamily: Font.medium, fontSize: 14, fontWeight: '700' },
+  emptyTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800', textAlign: 'center' },
+  emptyText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14, textAlign: 'center', marginTop: Spacing.two },
+  ctaBtn: { backgroundColor: NV.savia, borderRadius: Radius.none, paddingVertical: 14, paddingHorizontal: Spacing.four, marginTop: Spacing.four },
+  ctaBtnPressed: { backgroundColor: NV.savia700 },
+  ctaText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
 });

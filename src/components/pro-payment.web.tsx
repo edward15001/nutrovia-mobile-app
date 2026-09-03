@@ -2,10 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
-
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 
 interface Props {
   onActivated: () => void;
@@ -37,13 +34,21 @@ export default function ProPaymentWeb({ onClose }: Props) {
 
 const styles = StyleSheet.create({
   container: { gap: Spacing.three, paddingVertical: Spacing.two },
-  text: { color: MUTED, fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  text: {
+    color: NV.textoSuave,
+    fontFamily: Font.regular,
+    fontSize: 13,
+    lineHeight: 19,
+    textAlign: 'center',
+  },
   btn: {
-    backgroundColor: GOLD,
-    borderRadius: 12,
+    backgroundColor: NV.savia,
+    borderRadius: Radius.none,
+    borderWidth: Border.structural,
+    borderColor: NV.savia,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  btnPressed: { opacity: 0.85 },
-  btnText: { color: DARK, fontSize: 14, fontWeight: '800' },
+  btnPressed: { backgroundColor: NV.savia700, borderColor: NV.savia700 },
+  btnText: { color: NV.papel, fontFamily: Font.bold, fontSize: 14, fontWeight: '800' },
 });

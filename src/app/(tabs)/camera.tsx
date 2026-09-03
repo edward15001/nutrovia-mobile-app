@@ -15,10 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { analyzeFood, FoodAnalysis, logFood } from '@/lib/foodlog';
 import { Spacing } from '@/constants/theme';
-
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 
 export default function CameraScreen() {
   const cameraRef = useRef<CameraView>(null);
@@ -98,7 +95,7 @@ export default function CameraScreen() {
   if (!permission) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color={GOLD} />
+        <ActivityIndicator size="large" color={NV.savia} />
       </SafeAreaView>
     );
   }
@@ -110,7 +107,7 @@ export default function CameraScreen() {
         <Text style={styles.permissionText}>
           Fotografía tu plato para que la IA lo analice y te diga si cuadra con tu plan.
         </Text>
-        <Pressable style={({ pressed }) => [styles.permissionBtn, pressed && styles.pressed]} onPress={requestPermission}>
+        <Pressable style={({ pressed }) => [styles.permissionBtn, pressed && styles.permissionBtnPressed]} onPress={requestPermission}>
           <Text style={styles.permissionBtnText}>Permitir cámara</Text>
         </Pressable>
       </SafeAreaView>
@@ -123,7 +120,7 @@ export default function CameraScreen() {
       <SafeAreaView style={styles.center}>
         <Text style={styles.savedTitle}>Comida registrada</Text>
         <Text style={styles.savedText}>Ya aparece en tu diario del día y se descontó de tus kcal.</Text>
-        <Pressable style={({ pressed }) => [styles.permissionBtn, pressed && styles.pressed]} onPress={() => { setResult(null); setSaved(false); }}>
+        <Pressable style={({ pressed }) => [styles.permissionBtn, pressed && styles.permissionBtnPressed]} onPress={() => { setResult(null); setSaved(false); }}>
           <Text style={styles.permissionBtnText}>Registrar otra comida</Text>
         </Pressable>
       </SafeAreaView>
@@ -170,7 +167,7 @@ export default function CameraScreen() {
             </View>
           )}
 
-          <Pressable style={({ pressed }) => [styles.saveBtn, (pressed || saving) && styles.pressed]} onPress={confirmSave} disabled={saving}>
+          <Pressable style={({ pressed }) => [styles.saveBtn, (pressed || saving) && styles.saveBtnPressed]} onPress={confirmSave} disabled={saving}>
             <Text style={styles.saveBtnText}>{saving ? 'Guardando...' : 'Guardar en mi diario'}</Text>
           </Pressable>
           <Pressable style={({ pressed }) => [styles.retakeBtn, pressed && styles.pressed]} onPress={() => setResult(null)} disabled={saving}>
@@ -193,7 +190,7 @@ export default function CameraScreen() {
         <CameraView ref={cameraRef} style={styles.camera} facing="back" />
         {analyzing && (
           <View style={styles.analyzingOverlay}>
-            <ActivityIndicator size="large" color={GOLD} />
+            <ActivityIndicator size="large" color={NV.savia} />
             <Text style={styles.analyzingText}>Analizando tu plato con IA...</Text>
           </View>
         )}
@@ -210,14 +207,15 @@ export default function CameraScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: DARK },
-  center: { flex: 1, backgroundColor: DARK, alignItems: 'center', justifyContent: 'center', padding: Spacing.four },
+  safeArea: { flex: 1, backgroundColor: NV.papel },
+  center: { flex: 1, backgroundColor: NV.papel, alignItems: 'center', justifyContent: 'center', padding: Spacing.four },
   scroll: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
-  title: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  subtitle: { color: MUTED, fontSize: 13, textAlign: 'center', lineHeight: 19 },
+  title: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800', textAlign: 'center' },
+  subtitle: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, textAlign: 'center', lineHeight: 19 },
 
-  cameraWrap: { flex: 1, marginTop: Spacing.three, borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' },
+  // El visor va oscuro (imagen a sangre); el chrome alrededor va en papel.
+  cameraWrap: { flex: 1, marginTop: Spacing.three, borderRadius: Radius.none, overflow: 'hidden', backgroundColor: NV.tinta },
   camera: { flex: 1, width: '100%' },
   analyzingOverlay: {
     position: 'absolute',
@@ -227,18 +225,19 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.65)',
+    backgroundColor: NV.veloTinta,
     gap: Spacing.two,
   },
-  analyzingText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  analyzingText: { color: NV.papel, fontFamily: Font.medium, fontSize: 14, fontWeight: '600' },
 
+  // Redondo por física (el disparador), no por decoración: excepción a Radius.none.
   shutter: {
     alignSelf: 'center',
     width: 72,
     height: 72,
-    borderRadius: 36,
+    borderRadius: Radius.round,
     borderWidth: 4,
-    borderColor: GOLD,
+    borderColor: NV.savia,
     marginTop: Spacing.four,
     marginBottom: Spacing.four,
     alignItems: 'center',
@@ -246,55 +245,59 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   shutterPressed: { opacity: 0.7 },
-  shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: GOLD },
+  shutterInner: { width: 58, height: 58, borderRadius: Radius.round, backgroundColor: NV.savia },
 
-  permissionTitle: { color: '#fff', fontSize: 20, fontWeight: '800', textAlign: 'center' },
-  permissionText: { color: MUTED, fontSize: 14, textAlign: 'center', marginTop: Spacing.two, lineHeight: 20 },
+  permissionTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 20, fontWeight: '800', textAlign: 'center' },
+  permissionText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14, textAlign: 'center', marginTop: Spacing.two, lineHeight: 20 },
   permissionBtn: {
-    backgroundColor: GOLD,
-    borderRadius: 12,
+    backgroundColor: NV.savia,
+    borderRadius: Radius.none,
     paddingVertical: 14,
     paddingHorizontal: Spacing.four,
     marginTop: Spacing.four,
   },
-  permissionBtnText: { color: DARK, fontSize: 15, fontWeight: '800' },
+  permissionBtnPressed: { backgroundColor: NV.savia700 },
+  permissionBtnText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
   pressed: { opacity: 0.85 },
 
-  safetyBox: { backgroundColor: 'rgba(229,91,91,0.12)', borderColor: 'rgba(229,91,91,0.4)', borderWidth: 1, borderRadius: 10, padding: Spacing.three },
-  safetyText: { color: '#E55B5B', fontSize: 13, lineHeight: 19 },
+  safetyBox: { backgroundColor: NV.arcilla100, borderColor: NV.arcilla, borderWidth: Border.structural, borderRadius: Radius.none, padding: Spacing.three },
+  safetyText: { color: NV.arcilla700, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
 
-  fitBox: { padding: Spacing.three, borderRadius: 12, borderWidth: 1 },
-  fitGood: { backgroundColor: 'rgba(76,175,80,0.12)', borderColor: 'rgba(76,175,80,0.4)' },
-  fitBad: { backgroundColor: 'rgba(201,168,76,0.1)', borderColor: 'rgba(201,168,76,0.4)' },
-  fitBadge: { color: '#fff', fontSize: 15, fontWeight: '800' },
-  fitText: { color: '#C5E8C7', fontSize: 13, marginTop: Spacing.one, lineHeight: 19 },
-  fitTextBad: { color: '#E8D9A0' },
+  fitBox: { padding: Spacing.three, borderRadius: Radius.none, borderWidth: Border.structural },
+  fitGood: { backgroundColor: NV.savia100, borderColor: NV.savia },
+  // Estado "cuidado": rol ámbar (aviso), a juego con fitTextBad.
+  fitBad: { backgroundColor: NV.ambar100, borderColor: NV.ambar },
+  fitBadge: { color: NV.tinta, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
+  fitText: { color: NV.savia700, fontFamily: Font.regular, fontSize: 13, marginTop: Spacing.one, lineHeight: 19 },
+  fitTextBad: { color: NV.ambar700 },
 
   totalCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
     padding: Spacing.four,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
-  totalKcal: { color: GOLD, fontSize: 44, fontWeight: '900' },
-  totalUnit: { color: MUTED, fontSize: 14 },
+  totalKcal: { color: NV.savia, fontFamily: Font.bold, fontSize: 44, fontWeight: '900', fontVariant: ['tabular-nums'] },
+  totalUnit: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14 },
   macroRow: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.three },
-  macroPill: { backgroundColor: '#2A2A2A', borderRadius: 8, paddingHorizontal: Spacing.two, paddingVertical: 6 },
-  macroText: { color: '#fff', fontSize: 13, fontWeight: '700' },
+  // Chip de macro: mismo patrón que goalChip (tinte 100 de relleno, texto en el paso 700).
+  macroPill: { backgroundColor: NV.savia100, borderRadius: Radius.none, paddingHorizontal: Spacing.two, paddingVertical: 6 },
+  macroText: { color: NV.savia700, fontFamily: Font.medium, fontSize: 13, fontWeight: '700' },
 
   itemsBox: { gap: Spacing.two },
-  itemsTitle: { color: GOLD, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  itemsTitle: { color: NV.savia700, fontFamily: Font.medium, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
   itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: Spacing.two },
-  itemName: { color: '#fff', fontSize: 13, flex: 1 },
-  itemKcal: { color: MUTED, fontSize: 13, fontWeight: '600' },
+  itemName: { color: NV.tinta, fontFamily: Font.regular, fontSize: 13, flex: 1 },
+  itemKcal: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 13, fontWeight: '600' },
 
-  saveBtn: { backgroundColor: GOLD, borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: Spacing.two },
-  saveBtnText: { color: DARK, fontSize: 15, fontWeight: '800' },
-  retakeBtn: { borderRadius: 12, paddingVertical: 13, alignItems: 'center', borderWidth: 1, borderColor: '#333' },
-  retakeBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  saveBtn: { backgroundColor: NV.savia, borderRadius: Radius.none, paddingVertical: 15, alignItems: 'center', marginTop: Spacing.two },
+  saveBtnPressed: { backgroundColor: NV.savia700 },
+  saveBtnText: { color: NV.papel, fontFamily: Font.bold, fontSize: 15, fontWeight: '800' },
+  retakeBtn: { borderRadius: Radius.none, paddingVertical: 13, alignItems: 'center', borderWidth: Border.structural, borderColor: NV.tinta },
+  retakeBtnText: { color: NV.tinta, fontFamily: Font.medium, fontSize: 14, fontWeight: '700' },
 
-  savedTitle: { color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  savedText: { color: MUTED, fontSize: 14, textAlign: 'center', marginTop: Spacing.two, lineHeight: 20 },
+  savedTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800', textAlign: 'center' },
+  savedText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14, textAlign: 'center', marginTop: Spacing.two, lineHeight: 20 },
 });

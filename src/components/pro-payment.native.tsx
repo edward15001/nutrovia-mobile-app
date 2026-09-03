@@ -3,9 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 import { api } from '@/lib/api';
-
-const GOLD = '#C9A84C';
-const MUTED = '#888880';
+import { Font, NV } from '@/constants/nutrovia';
 
 interface Props {
   onActivated: () => void;
@@ -65,7 +63,7 @@ export default function ProPayment({ onActivated, onError, onClose }: Props) {
   if (!ready) {
     return (
       <View style={styles.loadingRow}>
-        <ActivityIndicator color={GOLD} />
+        <ActivityIndicator color={NV.savia} />
         <Text style={styles.loadingText}>Preparando pago seguro…</Text>
       </View>
     );
@@ -103,7 +101,7 @@ function PaymentSheetLauncher({
         const { error: initError } = await initPaymentSheet({
           paymentIntentClientSecret: clientSecret,
           merchantDisplayName: 'NutroVia',
-          style: 'alwaysDark',
+          style: 'alwaysLight',
         });
         if (initError) {
           onError(initError.message || 'No se pudo iniciar el pago');
@@ -141,7 +139,7 @@ function PaymentSheetLauncher({
 
   return (
     <View style={styles.loadingRow}>
-      <ActivityIndicator color={GOLD} />
+      <ActivityIndicator color={NV.savia} />
       <Text style={styles.loadingText}>Activando Pro…</Text>
     </View>
   );
@@ -155,5 +153,5 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 14,
   },
-  loadingText: { color: MUTED, fontSize: 14 },
+  loadingText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14 },
 });

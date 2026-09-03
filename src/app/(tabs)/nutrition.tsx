@@ -13,11 +13,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getPlan, isPro, NutritionPlan, DayMenu, Meal, swapMeal } from '@/lib/plan';
 import { Spacing } from '@/constants/theme';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 import { Icon } from '@/components/icon';
 
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
 const MEALS = [
@@ -65,7 +63,7 @@ export default function NutritionScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color={GOLD} />
+        <ActivityIndicator size="large" color={NV.savia} />
       </SafeAreaView>
     );
   }
@@ -175,7 +173,7 @@ export default function NutritionScreen() {
               El día {day} suma {dayMenu._kcal} kcal. El detalle de comidas está en el plan Pro.
             </Text>
             <Pressable
-              style={({ pressed }) => [styles.lockBtn, pressed && { opacity: 0.85 }]}
+              style={({ pressed }) => [styles.lockBtn, pressed && styles.lockBtnPressed]}
               onPress={() => router.push('/subscription')}>
               <Text style={styles.lockBtnText}>Subir a Pro →</Text>
             </Pressable>
@@ -209,7 +207,7 @@ export default function NutritionScreen() {
               </View>
               {daySwapped && (
                 <Pressable
-                  style={({ pressed }) => [styles.restoreBtn, pressed && { opacity: 0.85 }]}
+                  style={({ pressed }) => [styles.restoreBtn, pressed && styles.pressed]}
                   onPress={restoreDay}>
                   <Icon name="rotate-left" size={13} />
                   <Text style={styles.restoreText}>Restaurar día</Text>
@@ -248,7 +246,7 @@ export default function NutritionScreen() {
                       )}
                     </View>
                     <Pressable
-                      style={({ pressed }) => [styles.swapBtn, pressed && { opacity: 0.85 }]}
+                      style={({ pressed }) => [styles.swapBtn, pressed && styles.pressed]}
                       onPress={() => setOpenMeal(open ? null : m.key)}>
                       <Icon name="refresh" size={12} />
                       <Text style={styles.swapBtnText}>Cambiar</Text>
@@ -263,7 +261,7 @@ export default function NutritionScreen() {
                       {opts.map(o => (
                         <Pressable
                           key={o.day}
-                          style={({ pressed }) => [styles.optBtn, pressed && { opacity: 0.85 }]}
+                          style={({ pressed }) => [styles.optBtn, pressed && styles.pressed]}
                           onPress={() => applySwap(m.key, o.day)}>
                           <Text style={styles.optName} numberOfLines={1}>{o.meal.nombre}</Text>
                           <Text style={styles.optMeta}>
@@ -273,7 +271,7 @@ export default function NutritionScreen() {
                       ))}
                       {mealSwapped && (
                         <Pressable
-                          style={({ pressed }) => [styles.optBtn, styles.optOriginal, pressed && { opacity: 0.85 }]}
+                          style={({ pressed }) => [styles.optBtn, styles.optOriginal, pressed && styles.pressed]}
                           onPress={() => applySwap(m.key, null)}>
                           <Text style={[styles.optName, styles.optOriginalText]}>
                             <Icon name="rotate-left" size={12} /> Volver a la original
@@ -296,34 +294,34 @@ export default function NutritionScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: DARK },
-  center: { flex: 1, backgroundColor: DARK, alignItems: 'center', justifyContent: 'center' },
+  safeArea: { flex: 1, backgroundColor: NV.papel },
+  center: { flex: 1, backgroundColor: NV.papel, alignItems: 'center', justifyContent: 'center' },
   scroll: { flex: 1 },
   content: { padding: Spacing.four, gap: Spacing.three },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { color: '#fff', fontSize: 22, fontWeight: '800' },
+  title: { color: NV.tinta, fontFamily: Font.bold, fontSize: 22, fontWeight: '800' },
   dayTabs: { flexGrow: 0 },
   dayTab: {
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: 8,
-    backgroundColor: '#1A1A1A',
+    borderRadius: Radius.none,
+    backgroundColor: NV.papelAlt,
     marginRight: Spacing.two,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
-  dayTabActive: { backgroundColor: GOLD, borderColor: GOLD },
-  dayTabText: { color: MUTED, fontWeight: '600', fontSize: 13 },
-  dayTabTextActive: { color: DARK },
+  dayTabActive: { backgroundColor: NV.savia, borderColor: NV.savia },
+  dayTabText: { color: NV.textoSuave, fontFamily: Font.medium, fontWeight: '600', fontSize: 13 },
+  dayTabTextActive: { color: NV.papel },
   notesBox: {
-    backgroundColor: 'rgba(201,168,76,0.08)',
-    borderColor: 'rgba(201,168,76,0.35)',
-    borderWidth: 1,
-    borderRadius: 10,
+    backgroundColor: NV.savia100,
+    borderColor: NV.savia,
+    borderWidth: Border.structural,
+    borderRadius: Radius.none,
     padding: Spacing.three,
     gap: Spacing.one,
   },
-  note: { color: MUTED, fontSize: 13, lineHeight: 19 },
+  note: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19 },
 
   dayHead: {
     flexDirection: 'row',
@@ -333,105 +331,108 @@ const styles = StyleSheet.create({
   },
   dayHeadInfo: { flex: 1, gap: Spacing.one },
   dayTitleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
-  dayTitle: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  dayTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 17, fontWeight: '800' },
   modifiedBadge: {
-    color: GOLD,
+    color: NV.savia700,
+    fontFamily: Font.medium,
     fontSize: 11,
     fontWeight: '700',
-    backgroundColor: 'rgba(201,168,76,0.15)',
+    backgroundColor: NV.savia100,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 6,
+    borderRadius: Radius.none,
     overflow: 'hidden',
     flexDirection: 'row' as const,
     alignItems: 'center' as const,
     gap: 3,
   },
-  dayKcal: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  diffUp: { color: '#E8D9A0', fontSize: 12 },
-  diffDown: { color: '#7BC47F', fontSize: 12 },
-  dayHint: { color: MUTED, fontSize: 11, lineHeight: 16, flexDirection: 'row', alignItems: 'center' as const, gap: 4 },
+  dayKcal: { color: NV.tinta, fontFamily: Font.bold, fontSize: 14, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  diffUp: { color: NV.ambar700, fontFamily: Font.medium, fontSize: 12 },
+  diffDown: { color: NV.savia700, fontFamily: Font.medium, fontSize: 12 },
+  dayHint: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 11, lineHeight: 16, flexDirection: 'row', alignItems: 'center' as const, gap: 4 },
   restoreBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    borderWidth: 1,
-    borderColor: GOLD,
-    borderRadius: 8,
+    borderWidth: Border.structural,
+    borderColor: NV.savia,
+    borderRadius: Radius.none,
     paddingHorizontal: Spacing.two,
     paddingVertical: 7,
   },
-  restoreText: { color: GOLD, fontSize: 12, fontWeight: '700' },
+  restoreText: { color: NV.savia700, fontFamily: Font.medium, fontSize: 12, fontWeight: '700' },
+  pressed: { opacity: 0.85 },
 
   mealCard: {
-    backgroundColor: '#1A1A1A',
-    borderRadius: 12,
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
     padding: Spacing.three,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
-  mealCardOpen: { borderColor: 'rgba(201,168,76,0.5)' },
-  mealCardChanged: { borderColor: 'rgba(201,168,76,0.45)' },
+  mealCardOpen: { borderColor: NV.savia },
+  mealCardChanged: { borderColor: NV.savia },
   mealRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   mealIconWrap: {
     width: 32,
     height: 32,
-    borderRadius: 8,
-    backgroundColor: 'rgba(201,168,76,0.12)',
+    borderRadius: Radius.none,
+    backgroundColor: NV.savia100,
     alignItems: 'center',
     justifyContent: 'center',
   },
   mealInfo: { flex: 1, gap: 2 },
-  mealName: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  mealKcal: { color: GOLD, fontSize: 12, fontWeight: '600' },
-  mealIng: { color: MUTED, fontSize: 11, lineHeight: 16 },
-  changedBadge: { color: GOLD, fontSize: 11, fontWeight: '700', marginTop: 2, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 3 },
+  mealName: { color: NV.tinta, fontFamily: Font.bold, fontSize: 14, fontWeight: '700' },
+  mealKcal: { color: NV.savia700, fontFamily: Font.bold, fontSize: 12, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  mealIng: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 11, lineHeight: 16 },
+  changedBadge: { color: NV.savia700, fontFamily: Font.medium, fontSize: 11, fontWeight: '700', marginTop: 2, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 3 },
   swapBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(201,168,76,0.5)',
-    borderRadius: 8,
+    borderWidth: Border.structural,
+    borderColor: NV.savia,
+    borderRadius: Radius.none,
     paddingHorizontal: Spacing.two,
     paddingVertical: 7,
   },
-  swapBtnText: { color: GOLD, fontSize: 12, fontWeight: '700' },
+  swapBtnText: { color: NV.savia700, fontFamily: Font.medium, fontSize: 12, fontWeight: '700' },
 
   optionsBox: {
     marginTop: Spacing.two,
-    borderTopWidth: 1,
-    borderTopColor: '#2A2A2A',
+    borderTopWidth: Border.inner,
+    borderTopColor: NV.fileteSuave,
     paddingTop: Spacing.two,
     gap: Spacing.two,
   },
-  optionsTitle: { color: MUTED, fontSize: 12, marginBottom: Spacing.one },
+  optionsTitle: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 12, marginBottom: Spacing.one },
   optBtn: {
-    backgroundColor: '#242424',
-    borderRadius: 10,
+    backgroundColor: NV.hueso,
+    borderRadius: Radius.none,
     padding: Spacing.two + 2,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
     gap: 2,
   },
-  optOriginal: { borderColor: 'rgba(201,168,76,0.4)', backgroundColor: 'rgba(201,168,76,0.06)' },
-  optName: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  optOriginalText: { color: GOLD },
-  optMeta: { color: MUTED, fontSize: 11 },
+  optOriginal: { borderColor: NV.savia, backgroundColor: NV.savia100 },
+  optName: { color: NV.tinta, fontFamily: Font.medium, fontSize: 13, fontWeight: '600' },
+  optOriginalText: { color: NV.savia700 },
+  optMeta: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 11 },
 
   empty: { padding: Spacing.four, alignItems: 'center' },
-  emptyText: { color: MUTED, fontSize: 14 },
+  emptyText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 14 },
   lockBox: {
-    backgroundColor: 'rgba(201,168,76,0.08)',
-    borderColor: 'rgba(201,168,76,0.35)',
-    borderWidth: 1,
-    borderRadius: 12,
+    backgroundColor: NV.savia100,
+    borderColor: NV.savia,
+    borderWidth: Border.structural,
+    borderRadius: Radius.none,
     padding: Spacing.four,
     alignItems: 'center',
     gap: Spacing.two,
   },
-  lockTitle: { color: '#fff', fontSize: 17, fontWeight: '800', textAlign: 'center' },
-  lockText: { color: MUTED, fontSize: 13, lineHeight: 19, textAlign: 'center' },
-  lockBtn: { backgroundColor: GOLD, borderRadius: 10, paddingHorizontal: Spacing.four, paddingVertical: 12, marginTop: Spacing.two },
-  lockBtnText: { color: DARK, fontSize: 14, fontWeight: '800' },
+  lockTitle: { color: NV.tinta, fontFamily: Font.bold, fontSize: 17, fontWeight: '800', textAlign: 'center' },
+  lockText: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, lineHeight: 19, textAlign: 'center' },
+  lockBtn: { backgroundColor: NV.savia, borderRadius: Radius.none, paddingHorizontal: Spacing.four, paddingVertical: 12, marginTop: Spacing.two },
+  lockBtnPressed: { backgroundColor: NV.savia700 },
+  lockBtnText: { color: NV.papel, fontFamily: Font.bold, fontSize: 14, fontWeight: '800' },
 });

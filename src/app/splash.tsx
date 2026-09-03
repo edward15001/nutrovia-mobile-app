@@ -1,23 +1,17 @@
-import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeInUp, ZoomIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/icon';
-
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 
 /** Splash de bienvenida con animación del logo mientras se comprueba la sesión. */
 export default function SplashScreen() {
-  useEffect(() => {}, []);
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.center}>
         <Animated.View entering={ZoomIn.duration(700).delay(100)} style={styles.logoBadge}>
-          <Icon name="nutrition" size={46} color="#0D0D0D" />
+          <Icon name="nutrition" size={46} color={NV.papel} />
         </Animated.View>
 
         <Animated.View entering={FadeInUp.duration(700).delay(350)}>
@@ -35,39 +29,40 @@ export default function SplashScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: DARK },
+  safeArea: { flex: 1, backgroundColor: NV.papel },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 20,
   },
+  // Cuadrado, sin sombra ni halo: el símbolo en papel sobre savia.
   logoBadge: {
     width: 92,
     height: 92,
-    borderRadius: 24,
-    backgroundColor: GOLD,
+    borderRadius: Radius.none,
+    backgroundColor: NV.savia,
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: GOLD,
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 10,
   },
   logo: {
-    color: GOLD,
-    fontSize: 40,
-    fontWeight: '900',
-    letterSpacing: 5,
+    color: NV.tinta,
+    fontFamily: Font.brand,
+    fontSize: 34,
+    fontWeight: '800',
+    letterSpacing: 6,
   },
   logoDot: {
-    color: '#fff',
+    color: NV.savia,
   },
   tagline: {
-    color: MUTED,
-    fontSize: 14,
+    color: NV.textoSuave,
+    fontFamily: Font.regular,
+    fontSize: 13,
     textAlign: 'center',
-    letterSpacing: 1,
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
   },
 });

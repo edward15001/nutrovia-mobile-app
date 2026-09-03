@@ -13,10 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { login, register } from '@/lib/auth';
 import { Spacing } from '@/constants/theme';
-
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 
 export default function LoginScreen() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -71,7 +68,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Tu nombre"
-              placeholderTextColor={MUTED}
+              placeholderTextColor={NV.textoTenue}
               value={name}
               onChangeText={setName}
               autoComplete="name"
@@ -81,7 +78,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={MUTED}
+            placeholderTextColor={NV.textoTenue}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -92,7 +89,7 @@ export default function LoginScreen() {
           <TextInput
             style={styles.input}
             placeholder="Contraseña"
-            placeholderTextColor={MUTED}
+            placeholderTextColor={NV.textoTenue}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -106,7 +103,7 @@ export default function LoginScreen() {
             onPress={handleSubmit}
             disabled={loading}>
             {loading ? (
-              <ActivityIndicator color={DARK} />
+              <ActivityIndicator color={NV.papel} />
             ) : (
               <Text style={styles.buttonText}>
                 {mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
@@ -130,7 +127,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: DARK,
+    backgroundColor: NV.papel,
   },
   container: {
     flex: 1,
@@ -142,16 +139,18 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.five,
   },
   logo: {
-    color: GOLD,
-    fontSize: 32,
+    color: NV.tinta,
+    fontFamily: Font.brand,
+    fontSize: 30,
     fontWeight: '800',
-    letterSpacing: 4,
+    letterSpacing: 5,
   },
   logoDot: {
-    color: '#fff',
+    color: NV.savia,
   },
   subtitle: {
-    color: MUTED,
+    color: NV.textoSuave,
+    fontFamily: Font.regular,
     marginTop: Spacing.two,
     fontSize: 15,
   },
@@ -159,36 +158,44 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   input: {
-    backgroundColor: '#1A1A1A',
-    color: '#E8E0D0',
-    borderRadius: 10,
+    backgroundColor: NV.papelAlt,
+    color: NV.texto,
+    fontFamily: Font.regular,
+    borderRadius: Radius.none,
     paddingHorizontal: Spacing.three,
     paddingVertical: 14,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
   error: {
-    color: '#E55B5B',
+    color: NV.arcilla700,
+    fontFamily: Font.regular,
     fontSize: 13,
   },
   button: {
-    backgroundColor: GOLD,
-    borderRadius: 10,
+    backgroundColor: NV.savia,
+    borderRadius: Radius.none,
+    borderWidth: Border.structural,
+    borderColor: NV.savia,
     paddingVertical: 15,
     alignItems: 'center',
     marginTop: Spacing.two,
   },
+  // Estado pulsado del sistema: un paso más de la rampa, no opacidad.
   buttonPressed: {
-    opacity: 0.85,
+    backgroundColor: NV.savia700,
+    borderColor: NV.savia700,
   },
   buttonText: {
-    color: DARK,
+    color: NV.papel,
+    fontFamily: Font.bold,
     fontSize: 16,
     fontWeight: '700',
   },
   switchText: {
-    color: GOLD,
+    color: NV.savia700,
+    fontFamily: Font.regular,
     textAlign: 'center',
     marginTop: Spacing.two,
     fontSize: 14,

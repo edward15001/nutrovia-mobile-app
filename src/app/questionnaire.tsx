@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getPlan } from '@/lib/plan';
 import { Spacing } from '@/constants/theme';
+import { Border, Font, NV, Radius } from '@/constants/nutrovia';
 import {
   ACTIVITY_OPTIONS,
   DIET_OPTIONS,
@@ -26,12 +27,6 @@ import {
   SEX_OPTIONS,
   submitQuestionnaire,
 } from '@/lib/questionnaire';
-
-const GOLD = '#C9A84C';
-const DARK = '#0D0D0D';
-const MUTED = '#888880';
-const CARD = '#1A1A1A';
-const BORDER = '#2A2A2A';
 
 const DAY_OPTIONS = [1, 2, 3, 4, 5, 6, 7];
 
@@ -160,7 +155,7 @@ export default function QuestionnaireScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" color={GOLD} />
+        <ActivityIndicator size="large" color={NV.savia} />
       </SafeAreaView>
     );
   }
@@ -357,7 +352,7 @@ export default function QuestionnaireScreen() {
             disabled={submitting}>
             {submitting ? (
               <View style={styles.submitLoading}>
-                <ActivityIndicator color={DARK} />
+                <ActivityIndicator color={NV.papel} />
                 <Text style={styles.submitText}>Generando tu plan…</Text>
               </View>
             ) : (
@@ -425,7 +420,7 @@ function NumField({
           value={value}
           onChangeText={onChange}
           placeholder={placeholder}
-          placeholderTextColor={MUTED}
+          placeholderTextColor={NV.textoTenue}
           keyboardType="number-pad"
           inputMode="numeric"
           maxLength={3}
@@ -439,11 +434,11 @@ function NumField({
 // ─── Estilos ─────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: DARK },
+  safeArea: { flex: 1, backgroundColor: NV.papel },
   flex: { flex: 1 },
   center: {
     flex: 1,
-    backgroundColor: DARK,
+    backgroundColor: NV.papel,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -454,27 +449,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     paddingTop: Spacing.two,
     paddingBottom: Spacing.three,
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
+    borderBottomWidth: Border.structural,
+    borderBottomColor: NV.tinta,
   },
   backBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: CARD,
-    borderWidth: 1,
-    borderColor: BORDER,
+    borderRadius: Radius.none,
+    backgroundColor: NV.papelAlt,
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backText: { color: GOLD, fontSize: 20, fontWeight: '700' },
+  backText: { color: NV.savia700, fontFamily: Font.bold, fontSize: 20, fontWeight: '700' },
   headerTextWrap: { flex: 1 },
-  title: { color: '#fff', fontSize: 20, fontWeight: '800' },
-  subtitle: { color: MUTED, fontSize: 13, marginTop: 2 },
+  title: { color: NV.tinta, fontFamily: Font.bold, fontSize: 20, fontWeight: '800' },
+  subtitle: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13, marginTop: 2 },
   content: { padding: Spacing.four, paddingBottom: Spacing.six, gap: Spacing.three },
   section: { gap: Spacing.two },
   sectionTitle: {
-    color: GOLD,
+    color: NV.savia700,
+    fontFamily: Font.medium,
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
@@ -482,67 +478,68 @@ const styles = StyleSheet.create({
     paddingLeft: Spacing.one,
   },
   card: {
-    backgroundColor: CARD,
-    borderRadius: 12,
+    backgroundColor: NV.papelAlt,
+    borderRadius: Radius.none,
     padding: Spacing.three,
-    borderWidth: 1,
-    borderColor: BORDER,
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
     gap: Spacing.three,
   },
-  label: { color: MUTED, fontSize: 13, marginBottom: Spacing.one },
+  label: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 13, marginBottom: Spacing.one },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
   chip: {
-    backgroundColor: '#242424',
-    borderRadius: 10,
+    backgroundColor: NV.hueso,
+    borderRadius: Radius.none,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two + 4,
-    borderWidth: 1,
-    borderColor: BORDER,
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
   },
-  chipSelected: { backgroundColor: GOLD, borderColor: GOLD },
-  chipText: { color: MUTED, fontSize: 14, fontWeight: '600' },
-  chipTextSelected: { color: DARK, fontWeight: '700' },
+  chipSelected: { backgroundColor: NV.savia, borderColor: NV.savia },
+  chipText: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 14, fontWeight: '600' },
+  chipTextSelected: { color: NV.papel, fontFamily: Font.bold, fontWeight: '700' },
   dayChip: {
     width: 40,
     height: 40,
-    borderRadius: 10,
-    backgroundColor: '#242424',
-    borderWidth: 1,
-    borderColor: BORDER,
+    borderRadius: Radius.none,
+    backgroundColor: NV.hueso,
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dayChipText: { color: MUTED, fontSize: 15, fontWeight: '700' },
+  dayChipText: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 15, fontWeight: '700' },
   numGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
   numField: { flex: 1, minWidth: '42%' },
-  numLabel: { color: MUTED, fontSize: 12, marginBottom: Spacing.one },
+  numLabel: { color: NV.textoSuave, fontFamily: Font.medium, fontSize: 12, marginBottom: Spacing.one },
   numInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#242424',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: BORDER,
+    backgroundColor: NV.hueso,
+    borderRadius: Radius.none,
+    borderWidth: Border.structural,
+    borderColor: NV.tinta,
     paddingHorizontal: Spacing.three,
   },
   numInput: {
     flex: 1,
-    color: '#fff',
+    color: NV.tinta,
+    fontFamily: Font.regular,
     fontSize: 16,
     paddingVertical: 12,
     minWidth: 0,
   },
-  numSuffix: { color: MUTED, fontSize: 13 },
-  error: { color: '#E55B5B', fontSize: 13, textAlign: 'center' },
+  numSuffix: { color: NV.textoSuave, fontFamily: Font.regular, fontSize: 13 },
+  error: { color: NV.arcilla700, fontFamily: Font.regular, fontSize: 13, textAlign: 'center' },
   submitBtn: {
-    backgroundColor: GOLD,
-    borderRadius: 12,
+    backgroundColor: NV.savia,
+    borderRadius: Radius.none,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: Spacing.two,
   },
-  submitBtnPressed: { opacity: 0.85 },
+  submitBtnPressed: { backgroundColor: NV.savia700 },
   submitBtnDisabled: { opacity: 0.6 },
   submitLoading: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
-  submitText: { color: DARK, fontSize: 16, fontWeight: '800' },
+  submitText: { color: NV.papel, fontFamily: Font.bold, fontSize: 16, fontWeight: '800' },
 });
